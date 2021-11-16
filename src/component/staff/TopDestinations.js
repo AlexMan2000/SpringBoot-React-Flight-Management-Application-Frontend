@@ -93,7 +93,7 @@ export default function TopDestinations(){
             <Space direction="horizontal" size={12}>
             <Button onClick={renderLastYear} type={"primary"}>Last Year</Button>
             <Button onClick={renderLast3Month} type={"primary"}>Last 3 Months</Button>
-            <RangePicker picker="month"></RangePicker></Space>
+            <RangePicker picker="day"></RangePicker></Space>
         )
       }
 

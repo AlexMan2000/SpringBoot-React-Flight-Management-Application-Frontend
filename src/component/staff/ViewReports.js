@@ -7,13 +7,16 @@ import axios from "axios";
 import { SettingOutlined } from '@ant-design/icons';
 
 export default function ViewReports(){
-    const [data,setData]=useState();
+    const [data,setData]=useState([]);
     const [startDate,setStartDate]=useState(undefined);
     const [endDate,setEndDate] = useState(undefined);
 
     const {RangePicker} = DatePicker;
     
-    useEffect(()=>{},[]);
+    useEffect(()=>{
+      console.log("haha");
+      setData(sampleData);
+    },[]);
 
     const tabList = [
         {key: 'sales', tab: 'Sales Report'},
@@ -54,7 +57,7 @@ export default function ViewReports(){
         },
       ];
       var config = {
-        data: sampleData,
+        data: data,
         xField: 'type',
         yField: 'sales',
         label: {

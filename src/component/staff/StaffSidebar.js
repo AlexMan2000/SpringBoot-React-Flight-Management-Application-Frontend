@@ -8,7 +8,6 @@ const {SubMenu} = Menu;
 export default function StaffSidebar({updateSelection}) {
     const tagList = {
         // Flight Management
-        "1": "View flights",
         "2": "Flight CRUD",
         "4": "Add airplane",
         "5": "Add airport",
@@ -36,7 +35,7 @@ export default function StaffSidebar({updateSelection}) {
     }
 
     useEffect(() => {
-        updateSelection("Sale report");
+        updateSelection("View Reports");
     }, [])
 
     return (
@@ -48,7 +47,6 @@ export default function StaffSidebar({updateSelection}) {
             style={{height: '100%', borderRight: 0}}
         >
             <SubMenu key="sub1" icon={<SendOutlined />} title="Flight Management">
-                <Menu.Item key="1">{tagList['1']}</Menu.Item>
                 <Menu.Item key="2">{tagList['2']}</Menu.Item>
                 <Menu.Item key="4">{tagList['4']}</Menu.Item>
                 <Menu.Item key="5" disabled={false}>{tagList['5']}</Menu.Item>
@@ -61,7 +59,7 @@ export default function StaffSidebar({updateSelection}) {
                 <Menu.Item key="9">{tagList['9']}</Menu.Item>
             </SubMenu>
             <SubMenu key="sub3" icon={<SettingOutlined />} title="Operation">
-                <Menu.Item key="10" disabled={true}>{tagList['10']}</Menu.Item>
+                <Menu.Item key="10">{tagList['10']}</Menu.Item>
                 <Menu.Item key="11">{tagList['11']}</Menu.Item>
                 <Menu.Item key="12">{tagList['12']}</Menu.Item>
             </SubMenu>

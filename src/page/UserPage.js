@@ -21,6 +21,8 @@ import ViewReports from "../component/staff/ViewReports";
 import TopDestinations from "../component/staff/TopDestinations";
 import RevenueComparison from "../component/staff/RevenueComparsion";
 import ViewFrequent from "../component/staff/ViewFrequent";
+import AddAgents from "../component/staff/AddAgents";
+import GrantPermission from "../component/staff/GrantPermission";
 
 const {Header, Content, Sider, Footer} = Layout;
 const {SubMenu} = Menu;
@@ -77,11 +79,13 @@ export default function UserPage({initializingTab,loginInfo}) {
         "Commission statistics": <CommissionStatistics />,
         "Add airport": <EditAirport />,
         "Add airplane": <EditAirplane/>,
+        "Add booking agent":<AddAgents/>,
         "View Agents":<ViewAgents />,
         "View Reports":<ViewReports/>,
         "Top destinations":<TopDestinations/>,
         "Revenue Comparison":<RevenueComparison/>,
-        "Frequent customers":<ViewFrequent/>
+        "Frequent customers":<ViewFrequent/>,
+        "Grant permission":<GrantPermission/>
     }
 
     useEffect(() => {

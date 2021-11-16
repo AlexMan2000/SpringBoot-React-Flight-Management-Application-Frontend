@@ -110,7 +110,16 @@ export default function ViewAgents(){
 
 
         
-        <Bar {...config} sort/>;
+        <Bar 
+        {...config}
+        sort 
+        onReady={(plot)=>{
+            console.log("xixi");
+                plot.chart.on("element:click",(evt)=>{
+                    console.log(evt)
+                });
+            }}
+        />;
 
 
 

@@ -77,7 +77,7 @@ export default function RevenueComparison(){
             <Space direction="horizontal" size={12}>
             <Button onClick={renderLastYear} type={"primary"}>Last Year</Button>
             <Button onClick={renderLastMonth} type={"primary"}>Last Month</Button>
-            <RangePicker picker="month"></RangePicker></Space>
+            <RangePicker picker="day"></RangePicker></Space>
         )
       }
 

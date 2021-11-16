@@ -1,12 +1,26 @@
 import React, {useState} from "react";
 import {Column} from "@ant-design/charts";
-import {Card, Divider, Typography} from "antd";
+import {Card, Divider, Typography,InputNumber} from "antd";
+import { useEffect } from "react/cjs/react.development";
 
 const {Title} = Typography;
 
 export default function TopCustomerChart() {
     const [customerTicketCount, setCustomerTicketCount] = useState(null);
     const [customerCommission, setCustomerCommission] = useState(null);
+    const [activeTab,setActiveTab] = useState("tickets");
+    const [data,setData]=useState([]);
+    const [topK,setTopK] = useState(5);
+
+    const tabList = [
+        {key: 'tickets', tab: 'Tickets Ranking'},
+        {key: 'commission', tab: 'Commission Ranking'},
+    ]
+
+    useEffect((()=>{
+        setData(testTicket);
+    }))
+
 
     // for testing ONLY
     const testTicket = [
@@ -74,17 +88,32 @@ export default function TopCustomerChart() {
         },
     }
 
+
+    const onTabChange = (key)=>{
+        setActiveTab(key);
+        if(key==="tickets"){
+            setData(testTicket);
+        }else{
+            setData(testCommission);
+        }
+    }
+
+    const onNumberChange=(value)=>{
+        //更新图标
+        setTopK(value);
+    }
+    
+
     return (
-        <Card title="Customer Statistics">
-            <Title level={4}>Top 5 customers of ticket number</Title>
+        <Card title="Customer Statistics"
+              tabList={tabList}
+              activeTab={activeTab}
+        onTabChange={onTabChange}
+        tabBarExtraContent={<><span style={{marginRight:5}}>Top</span><InputNumber min={1} onChange={onNumberChange} defaultValue={5}></InputNumber><span style={{marginLeft:5}}>Agents</span></>}
+        >
             <Column {...columnConfig}
-                    data={testTicket}
-                    meta={{uid: {alias: 'User ID'}, sum: {alias: 'Ticket Number'}}} />
-            <Divider />
-            <Title level={4}>Top 5 customers of total commission</Title>
-            <Column {...columnConfig}
-                    data={testCommission}
-                    meta={{uid: {alias: 'User ID'}, sum: {alias: 'Total Commission'}}} />
+                    data={data.slice(0,topK)}
+                    meta={{uid: {alias: 'User ID'}, sum: {alias:activeTab==="tickets"?'Ticket Number':'Total Commission'}}} />
         </Card>
     )
 }

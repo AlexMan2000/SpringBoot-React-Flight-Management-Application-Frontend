@@ -208,7 +208,10 @@ export default function FlightCRUD(){
         {
             title: "Flight Number",
             dataIndex:"flight_id",
-            key:"flight"
+            key:"flight",
+            textWrap:"word-break",
+            width:100,
+            ellipsis:true,
         },
         {
             title: "Airline Name",
@@ -247,19 +250,28 @@ export default function FlightCRUD(){
             title: "Arri. Time",
             dataIndex: "arri_time",
             valueType:"date",
-            key: "arri_time"
+            key: "arri_time",
+            textWrap:"word-break",
+            width:100,
+            ellipsis:true,
         },
         {
             title: "Price",
             dataIndex: "price",
             hideInSearch:true,
-            key: "price"
+            key: "price",
+            textWrap:"word-break",
+            width:100,
+            ellipsis:true,
         },
         {
             title: "Airplane ID",
             dataIndex: "airplane_id",
             hideInSearch:true,
-            key: "airplane_id"
+            key: "airplane_id",
+            textWrap:"word-break",
+            width:100,
+            ellipsis:true,
         },
         {
             title: "Status",
