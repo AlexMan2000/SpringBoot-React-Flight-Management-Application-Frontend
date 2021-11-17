@@ -1,15 +1,44 @@
 import React, {useState} from "react";
-import {Input, Card, Button,Form} from "antd";
+import {Input, Card, Button,Form,message} from "antd";
+import qs from "qs";
+import moment from "moment";
+import axios from "axios";
 
 export default function EditAirport() {
 
-    const onFinish =()=>{
-
-
+    const onFinish =(values)=>{
+      console.log(values);
+      axios({
+        url:"http://localhost:8080/airlineStaff/addNewAirport",
+        method:"post",
+        data:values
+      }).then(function(response){
+        if(response.data==="success"){
+          message.success({
+            content: 'Insertion Completed',
+            className: 'custom-class',
+            style: {
+              marginTop: '40vh',
+            },
+          });
+        }else{
+          message.error({
+            content: 'You have already inserted this airport!',
+            className: 'custom-class',
+            style: {
+              marginTop: '40vh',
+            },
+          });
+        }
+      })
     }
 
     const onFinishFailed = ()=>{
+      console.log("xixi");
+    }
 
+    const onReset = ()=>{
+      form.resetFields();
     }
 
     const tailFormItemLayout = {
@@ -33,15 +62,20 @@ export default function EditAirport() {
             name="airport form"
             className="airport_form"
             onFinish={onFinish}
-            onFinishedFailed={onFinishFailed}>
-           </Form>
+            onFinishFailed={onFinishFailed}
+            scrollToFirstError>
+           
             <Form.Item
             name="airportName"
             label="Airport Name"
-            rule={[
-                {required:true,
-                message:"Airport Name should not be empty!"}
-            ]}>
+            rules={[
+                {
+                  required:true,
+                message:"Airport Name should not be empty!"
+                }
+            ]}
+            validateTrigger='onBlur'
+            hasFeedback>
 
                 <Input ></Input>
             </Form.Item>
@@ -49,22 +83,27 @@ export default function EditAirport() {
             <Form.Item
             name="airportCity"
             label="Airport City"
-            rule={[
-                {required:true,
+            validateTrigger='onBlur'
+            rules={
+              [
+                {
+                  required:true,
                 message:"Airport City should not be empty!"}
-            ]}>
+            ]}
+            hasFeedback>
 
                 <Input></Input>
             </Form.Item>
 
             <Form.Item {...tailFormItemLayout}> 
             <Button type="primary" htmlType="submit">
-              Register
+              Add
             </Button>
-            <Button type="primary" onClick={console.log("haha")}>
-              Back
+            <Button type="primary" onClick={onReset}>
+              Reset
             </Button>
           </Form.Item>
+          </Form>
 
 
         </Card>

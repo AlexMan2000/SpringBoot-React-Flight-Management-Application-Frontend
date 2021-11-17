@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Form, Button, Input, Modal} from 'antd';
+import { Select,Form, Button, Input, Modal, DatePicker, InputNumber, message} from 'antd';
 import { render } from '@testing-library/react';
+import moment from "moment";
+import axios from "axios";
 
 const formLayout = {
     labelCol: { span: 7 },
@@ -9,27 +11,56 @@ const formLayout = {
 
 const FormItem = Form.Item;
 
-
+const { Option } = Select;
 
 export default function CreateForm(props){
     const{modalVisible,onCancel,onSubmit,handleCreateModalVisible,handleCreate} = props;
-    const[formVals,setFormVals] = useState({});
+    const[formVals,setFormVals] = useState({}); //用于批量添加，暂时用不到
 
     const [form] = Form.useForm();
+
+
+    const disabledDate = (current) => {
+      // Can not select days before today and today
+      return current && current < moment().endOf('day');
+    }
+
+    const options = ["upcoming","finished","cancelled","onBoarding","delayed"];
+    const optionsData = options.map((item)=><Option key={item}>{item}</Option>)
+
     
-    console.log("CreateForm");
 
     const handleNext = async () => {
         const fieldsValue = await form.validateFields();
-        setFormVals({ ...formVals, ...fieldsValue});
-        handleCreate({ ...formVals, ...fieldsValue});
+        axios({
+          url:"http://localhost:8080/airlineStaff/validateNewAirplane",
+          method:"POST",
+          data:{
+            id:fieldsValue.airplaneId,
+            airline:fieldsValue.airlineName
+          }
+        }).then(function(response){
+          if(response.data==="success"){
+            setFormVals({ ...formVals, ...fieldsValue});
+            handleCreate({ ...formVals, ...fieldsValue});
+          }else{
+            message.error({
+              content: 'This airline name and airplane id is not found in the database!',
+              className: 'custom-class',
+              style: {
+                marginTop: '40vh',
+              },
+            });
+          }
+        })
+        
       };
 
     const renderContent = () => {
         return (
-          <>
+          < >
             <FormItem
-              name="flightNumber"
+              name="flightNum"
               label="Flight Number"
               rules={[{ required: true, message: 'Please input flight number!' }]}
             >
@@ -43,20 +74,116 @@ export default function CreateForm(props){
               <Input placeholder="e.g. Cathay Pacific" />
             </FormItem>
     
-            {(<FormItem
-              name="departureAirport"
+            <FormItem
+              name="sourceAirportName"
               label="Departure Airport"
-              rules={[{ required: true, message: '输入权限！' }]}
+              rules={[{ required: true, message: 'Please Input Departure Airport' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (value && getFieldValue('destAirportName') !== value) {
+                    return Promise.resolve();
+                  }
+    
+                  return Promise.reject(new Error('The arrivalAirport should not be the same as the departure Airport!'));
+                },
+              }),]}
             >
-              <Input placeholder="请输入" />
-            </FormItem>)}
-            {(<FormItem
-            name="remark"
-            label="请求模式"
-            rules={[{ required: true, message: '输入请求模式！' }]}
+              <Input placeholder="e.g. PVG" />
+            </FormItem>
+            <FormItem
+              name="departureTime"
+              label="Departure Time"
+              rules={[{ required: true, message: 'Please input Departure Time' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  console.log("xixi");
+                  if (moment(value)<moment(getFieldValue("arrivalTime"))) {
+                    return Promise.resolve();
+                  }
+    
+                  return Promise.reject(new Error('You cannot set the departure time to be later than arrival time!'));
+                },}),
+
+              ]}
+              >
+              <DatePicker 
+               format="YYYY-MM-DD HH:mm:ss"
+               disabledDate={disabledDate}
+               showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }
+              
+              }></DatePicker>
+            </FormItem>
+
+
+            <FormItem
+              name="destAirportName"
+              label="Arrival Airport"
+              rules={[{ required: true, message: 'Please Input Arrival Airport' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (value && getFieldValue('sourceAirportName') !== value) {
+                    return Promise.resolve();
+                  }
+    
+                  return Promise.reject(new Error('The arrival airport should not be the same as the departure airport!'));
+                },
+              }),]}
             >
-            <Input placeholder="请输入" />
-            </FormItem>)}
+              <Input placeholder="e.g. SZX" />
+            </FormItem>
+
+
+            <FormItem
+              name="arrivalTime"
+              label="Arrival Time"
+              rules={[{ required: true, message: 'Please input Departure Time' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (moment(value)>moment(getFieldValue("departureTime"))) {
+                    return Promise.resolve();
+                  }
+    
+                  return Promise.reject(new Error('You cannot set the arrival time to be earlier than  the departure time!'));
+                },
+              }),]}
+              >
+              <DatePicker 
+               format="YYYY-MM-DD HH:mm:ss"
+               disabledDate={disabledDate}
+               showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}></DatePicker>
+            </FormItem>
+
+            <FormItem 
+              name="price"
+              label="price"
+              rules={[{
+                  required: true,
+                  message: "Please indicate the price of this flight!"
+              }]}>
+              <InputNumber min={1} max={999999999} precision={2} style={{width:130}}></InputNumber>
+            </FormItem>
+
+            <FormItem 
+              name="status"
+              label="status"
+              rules={[{
+                  required: true,
+                  message: "Please select the status of this flight!"
+              }]}>
+              <Select >{optionsData}</Select>
+            </FormItem>
+
+            <FormItem 
+              name="airplaneId"
+              label="Airplane Id"
+              rules={[{
+                  required: true,
+                  message: "Please select the airplane id for this flight!"
+              }]}>
+              <Input placeholder="e.g. A380"></Input>
+            </FormItem>
+
+
           </>
         );
       };
@@ -64,9 +191,9 @@ export default function CreateForm(props){
       const renderFooter = () => {
         return (
           <>
-            <Button onClick={() => handleCreateModalVisible(false)}>取消</Button>
+            <Button onClick={() => handleCreateModalVisible(false)}>Cancel</Button>
             <Button type="primary" onClick={() => handleNext()}>
-              提交
+              Submit
             </Button>
           </>
         );
@@ -75,10 +202,10 @@ export default function CreateForm(props){
     return (
         <Modal
       destroyOnClose
-      title="添加用户"
+      title="Add Flight"
       visible={modalVisible}
       onCancel={() => onCancel()}
-      footer={renderFooter}
+      footer={renderFooter()}
       
     >
       {/* {props.children} */}
@@ -86,7 +213,8 @@ export default function CreateForm(props){
       <Form
           {...formLayout}
           form={form}
-          
+          name="flight"
+          className="flight-form"
         >{renderContent()}
         </Form>
 

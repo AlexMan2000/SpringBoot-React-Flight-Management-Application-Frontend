@@ -13,7 +13,7 @@ export default function AgentSidebar({updateSelection}) {
         "4": "Commission statistics",
         "5": "Top customers",
         "6": "Logout",
-        "7": "My Flights"
+        "7": "My flights"
     }
     const navigate = useNavigate();
 

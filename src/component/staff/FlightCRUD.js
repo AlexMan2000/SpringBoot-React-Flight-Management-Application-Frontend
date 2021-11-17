@@ -1,5 +1,6 @@
 import React,{useEffect,useState,useRef} from "react";
 import moment from "moment";
+import qs from "qs";
 import axios from "axios";
 import {dateFormat} from "../../lib/dateFormat";
 import "antd/dist/antd.css";
@@ -31,11 +32,19 @@ export default function FlightCRUD(){
 
     //异步方法提交数据
     const fetchFlightData = (query)=>{
-
+        // axios({
+        //   url:"http://localhost:8080/airlineStaff/getAllFlights",
+        //   method:"GET"
+        // }).then(function(response){
+        //   if(response.data){
+        //       return 
+        //   }
+        // })
         return {"data":dataSource,"success":true};
     }
 
-    const dataSource = {"records":[
+    const dataSource = {
+      "records":[
         {
           flight_id: "MU12243234",
           airline_name:"Cathay Pacific",
@@ -180,11 +189,38 @@ export default function FlightCRUD(){
     }
 
     const handleUpdateMany =()=>{
-
+      
     }
 
-    const handleCreate = ()=>{
-        console.log("Create");
+    //用于提交数据之后
+    const handleCreate = (values)=>{
+        axios({
+          url:"http://localhost:8080/airlineStaff/addNewFlight",
+          method:"post",
+          data:{...values,
+            departureTime:new Date(moment(values.departureTime)),
+            arrivalTime:new Date(moment(values.arrivalTime))}
+        }).then(function(response){
+          if(response.data==="success"){
+            message.success({
+              content: 'Insertion Completed',
+              className: 'custom-class',
+              style: {
+                marginTop: '40vh',
+              },
+            });
+            handleCreateModalVisible(false);
+          }else{
+            message.error({
+              content: 'You have already inserted this airplane information!',
+              className: 'custom-class',
+              style: {
+                marginTop: '40vh',
+              },
+            });
+          }
+        })
+        
     }
 
     const handleDetails =()=>{
@@ -334,8 +370,6 @@ export default function FlightCRUD(){
 
         // 发起请求
         const { data, success } = fetchFlightData(query);
-        console.log(data);
-        console.log(success);
         // 格式化返回数据
         return {
             data: data.records,
