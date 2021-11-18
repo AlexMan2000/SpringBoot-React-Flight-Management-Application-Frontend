@@ -12,6 +12,7 @@ import {Button, Space, Tag,Popconfirm, message} from "antd";
 import { statusColor } from "../../lib/statusTag";
 import CreateForm from "./CRUDElements/CreateForm";
 import UpdateForm from "./CRUDElements/UpdateForm";
+import DetailsForm from "./CRUDElements/DetailsForm";
 
 export default function FlightCRUD(){
 
@@ -19,6 +20,7 @@ export default function FlightCRUD(){
     const [createModalVisible,handleCreateModalVisible] = useState(false);
     //控制更新Modal的可视，由于需要数据回显，故和createModal分开写
     const [updateModalVisible,handleUpdateModalVisible] = useState(false);
+    const [detailModalVisible,handleDetailModalVisible] = useState(false);
     const [selectedRows,setSelectedRows] = useState([]);
     //设置回显的数据
     const [stepFormValues, setStepFormValues] = useState({});
@@ -28,155 +30,37 @@ export default function FlightCRUD(){
     const [apiData, setApiData] = useState([]);
     //全局变量，在整个生命周期都有效
     const actionRef = useRef();
-    
 
-    //异步方法提交数据
-    const fetchFlightData = (query)=>{
-        // axios({
-        //   url:"http://localhost:8080/airlineStaff/getAllFlights",
-        //   method:"GET"
-        // }).then(function(response){
-        //   if(response.data){
-        //       return 
-        //   }
-        // })
-        return {"data":dataSource,"success":true};
+    //异步方法提交数据, 注意这里返回一个异步函数
+    const fetchFlightData = async (query)=>{
+        return axios({
+          url:"http://localhost:8080/airlineStaff/findAllFlights",
+          method:"GET"
+        }).then(function(response){
+          if(response.data){
+              console.log("有数据");
+              return {"data":{...response.data},"success":true};
+          }else{
+            return {"data":dataSource,"success":true};
+          }
+        })  
+       
     }
 
     const dataSource = {
       "records":[
         {
-          flight_id: "MU12243234",
-          airline_name:"Cathay Pacific",
-          dept:"PVG",
-          dept_time:"2020-01-01",
-          arri:"SZX",
-          arri_time:"2020-01-02",
+          flightNum: "MU12243234",
+          airlineName:"Cathay Pacific",
+          sourceAirportName:"PVG",
+          departureTime:moment("2020-01-01").format("YYYY-MM-DD HH:mm:ss"),
+          destAirportName:"SZX",
+          arrivalTime:moment("2020-01-01").format("YYYY-MM-DD HH:mm:ss"),
           price:3030,
           status:["upcoming"],
-          airplane_id:"MU888"
+          airplaneId:"MU888"
         },
-        {
-          flight_id: "MU12324325",
-          airline_name:"Cathay Pacific",
-          dept:"PVG",
-          dept_time:"2024-01-01",
-          arri:"SZX",
-          arri_time:"2024-01-01",
-          price:3030,
-          status:["upcoming"],
-          airplane_id:"MU888"
-        },
-        {
-            flight_id: "MU1234346",
-            airline_name:"Cathay Pacific",
-            dept:"PVG",
-            dept_time:"2077-01-03",
-            arri:"SZX",
-            arri_time:"2077-01-04",
-            price:3030,
-            status:["upcoming"],
-            airplane_id:"MU888"
-        },
-        {
-            flight_id: "MU1222236",
-            airline_name:"Cathay Pacific",
-            dept:"PVG",
-            dept_time:"2077-01-03",
-            arri:"SZX",
-            arri_time:"2077-01-04",
-            price:3030,
-            status:["upcoming"],
-            airplane_id:"MU888"
-        },
-        {
-            flight_id: "MU123226",
-            airline_name:"Cathay Pacific",
-            dept:"PVG",
-            dept_time:"2077-01-03",
-            arri:"SZX",
-            arri_time:"2077-01-04",
-            price:3030,
-            status:["upcoming"],
-            airplane_id:"MU888"
-        },
-        {
-            flight_id: "MU12336",
-            airline_name:"Cathay Pacific",
-            dept:"PVG",
-            dept_time:"2077-01-03",
-            arri:"SZX",
-            arri_time:"2077-01-04",
-            price:3030,
-            status:["upcoming"],
-            airplane_id:"MU888"
-        },
-        {
-            flight_id: "MU12546",
-            airline_name:"Cathay Pacific",
-            dept:"PVG",
-            dept_time:"2077-01-03",
-            arri:"SZX",
-            arri_time:"2077-01-04",
-            price:3030,
-            status:["upcoming"],
-            airplane_id:"MU888"
-        },
-        {
-            flight_id: "MU0236",
-            airline_name:"Cathay Pacific",
-            dept:"PVG",
-            dept_time:"2077-01-03",
-            arri:"SZX",
-            arri_time:"2077-01-04",
-            price:3030,
-            status:["upcoming"],
-            airplane_id:"MU888"
-        },
-        {
-            flight_id: "MU1436",
-            airline_name:"Cathay Pacific",
-            dept:"PVG",
-            dept_time:"2077-01-03",
-            arri:"SZX",
-            arri_time:"2077-01-04",
-            price:3030,
-            status:["upcoming"],
-            airplane_id:"MU888"
-        },
-        {
-            flight_id: "MU1266",
-            airline_name:"Cathay Pacific",
-            dept:"PVG",
-            dept_time:"2077-01-03",
-            arri:"SZX",
-            arri_time:"2077-01-04",
-            price:3030,
-            status:["upcoming"],
-            airplane_id:"MU888"
-        },
-        {
-            flight_id: "MU1239",
-            airline_name:"Cathay Pacific",
-            dept:"PVG",
-            dept_time:"2077-01-03",
-            arri:"SZX",
-            arri_time:"2077-01-04",
-            price:3030,
-            status:["upcoming"],
-            airplane_id:"MU888"
-        },
-        {
-            flight_id: "MU1235",
-            airline_name:"Cathay Pacific",
-            dept:"PVG",
-            dept_time:"2077-01-03",
-            arri:"SZX",
-            arri_time:"2077-01-04",
-            price:3030,
-            status:["upcoming"],
-            airplane_id:"MU888"
-        },
+        
       ],"total":12,"success":true};
 
 
@@ -243,15 +127,16 @@ export default function FlightCRUD(){
     const columns = [
         {
             title: "Flight Number",
-            dataIndex:"flight_id",
+            dataIndex:"flightNum",
             key:"flight",
             textWrap:"word-break",
             width:100,
             ellipsis:true,
+            fixed:"left"
         },
         {
             title: "Airline Name",
-            dataIndex:"airline_name",
+            dataIndex:"airlineName",
             textWrap:"word-break",
             width:100,
             ellipsis:true,
@@ -259,7 +144,7 @@ export default function FlightCRUD(){
         },
         {
             title: "Dept. Airport",
-            dataIndex: "dept",
+            dataIndex: "sourceAirportName",
             textWrap:"word-break",
             width:100,
             ellipsis:true,
@@ -267,7 +152,7 @@ export default function FlightCRUD(){
         },
         {
             title: "Arri. Airport",
-            dataIndex: "arri",
+            dataIndex: "destAirportName",
             textWrap:"word-break",
             width:100,
             ellipsis:true,
@@ -275,20 +160,21 @@ export default function FlightCRUD(){
         },
         {
             title: "Dept. Time",
-            dataIndex: "dept_time",
-            valueType:"date",
-            textWrap:"word-break",
-            width:100,
+            dataIndex: "departureTime",
+            valueType:"dateTime",
+            // textWrap:"word-break",
+            width:150,
             ellipsis:true,
             key: "dept_time"
         },
         {
             title: "Arri. Time",
-            dataIndex: "arri_time",
-            valueType:"date",
+            dataIndex: "arrivalTime",
+            valueType:"dateTime",
             key: "arri_time",
-            textWrap:"word-break",
-            width:100,
+            width:150,
+            // textWrap:"word-break",
+       
             ellipsis:true,
         },
         {
@@ -302,7 +188,7 @@ export default function FlightCRUD(){
         },
         {
             title: "Airplane ID",
-            dataIndex: "airplane_id",
+            dataIndex: "airplaneId",
             hideInSearch:true,
             key: "airplane_id",
             textWrap:"word-break",
@@ -316,11 +202,10 @@ export default function FlightCRUD(){
             key: "status",
             render: tags => (
                 <>
-                    {tags.map(status => (
-                        <Tag color={statusColor[status]} key={status}>
-                            {status.toUpperCase()}
+                    {
+                        <Tag color={statusColor[tags]} key={tags}>
+                            {tags.toUpperCase()}
                         </Tag>
-                    ))
                     }
                 </>
             )
@@ -329,6 +214,7 @@ export default function FlightCRUD(){
             title: "Action",
             key: 'action',
             hideInSearch:true,
+            fixed:"right",
             render: (text, record) => (
                 <Space size="middle">
                 <Button onClick={()=>{}}>Details</Button>
@@ -362,6 +248,7 @@ export default function FlightCRUD(){
     // 获取数据 
     const getData = async (params) => {
         // 组装查询参数，比如这里用 pageIndex 代替了 current
+        console.log("调用getData")
         const query = {
             ...params,
             pageIndex: params.current
@@ -369,7 +256,9 @@ export default function FlightCRUD(){
         delete query.current;
 
         // 发起请求
-        const { data, success } = fetchFlightData(query);
+        console.log("发起请求")
+        const {data,success} = await fetchFlightData(query); //这里需要返回一个异步函数
+        
         // 格式化返回数据
         return {
             data: data.records,
@@ -385,7 +274,7 @@ export default function FlightCRUD(){
             actionRef={actionRef}
             request={getData}
             rowKey={(record,index)=>index}
-            scroll={{"y":300,"x":"100%"}}
+            scroll={{"y":300,x:1300}}
             form={{span:8}}
             size={"middle"}
             rowSelection={{
@@ -499,9 +388,9 @@ export default function FlightCRUD(){
           handleUpdate={handleUpdate}
         />
       ) : null}
-
-
-        </div>
+        <DetailsForm></DetailsForm>
+      
+    </div>
         
 
 

@@ -136,7 +136,7 @@ export default function CreateForm(props){
             <FormItem
               name="arrivalTime"
               label="Arrival Time"
-              rules={[{ required: true, message: 'Please input Departure Time' },
+              rules={[{ required: true, message: 'Please input Arrival Time' },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (moment(value)>moment(getFieldValue("departureTime"))) {
