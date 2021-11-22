@@ -12,7 +12,7 @@ import {Button, Space, Tag,Popconfirm, message} from "antd";
 import { statusColor } from "../../lib/statusTag";
 import CreateForm from "./CRUDElements/CreateForm";
 import UpdateForm from "./CRUDElements/UpdateForm";
-import DetailsForm from "./CRUDElements/DetailsForm";
+import DetailsTable from "./CRUDElements/DetailsForm";
 
 export default function FlightCRUD(){
 
@@ -41,8 +41,11 @@ export default function FlightCRUD(){
               console.log("有数据");
               return {"data":{...response.data},"success":true};
           }else{
-            return {"data":dataSource,"success":true};
+             return {"data":{},"success":false};
           }
+        }).catch(function(){
+          console.log("返回默认数据")
+          return {"data":dataSource,"success":true};
         })  
        
     }
@@ -57,7 +60,29 @@ export default function FlightCRUD(){
           destAirportName:"SZX",
           arrivalTime:moment("2020-01-01").format("YYYY-MM-DD HH:mm:ss"),
           price:3030,
-          status:["upcoming"],
+          status:"upcoming",
+          airplaneId:"MU888"
+        },
+        {
+          flightNum: "MU1224",
+          airlineName:"Cathay Pacific",
+          sourceAirportName:"PVG",
+          departureTime:moment("2020-01-01").format("YYYY-MM-DD HH:mm:ss"),
+          destAirportName:"SZX",
+          arrivalTime:moment("2020-01-01").format("YYYY-MM-DD HH:mm:ss"),
+          price:3030,
+          status:"upcoming",
+          airplaneId:"MU888"
+        },
+        {
+          flightNum: "MU234",
+          airlineName:"Cathay Pacific",
+          sourceAirportName:"PVG",
+          departureTime:moment("2020-01-01").format("YYYY-MM-DD HH:mm:ss"),
+          destAirportName:"SZX",
+          arrivalTime:moment("2020-01-01").format("YYYY-MM-DD HH:mm:ss"),
+          price:3030,
+          status:"upcoming",
           airplaneId:"MU888"
         },
         
@@ -132,7 +157,8 @@ export default function FlightCRUD(){
             textWrap:"word-break",
             width:100,
             ellipsis:true,
-            fixed:"left"
+            fixed:"left",
+            
         },
         {
             title: "Airline Name",
@@ -217,7 +243,11 @@ export default function FlightCRUD(){
             fixed:"right",
             render: (text, record) => (
                 <Space size="middle">
-                <Button onClick={()=>{}}>Details</Button>
+                <Button onClick={()=>{
+                  handleDetailModalVisible(true);
+                  setStepFormValues(record);
+                  console.log("view details")
+                }}>Details</Button>
                 <Button onClick={()=>{
                     handleUpdateModalVisible(true);
                     setStepFormValues(record);
@@ -248,7 +278,7 @@ export default function FlightCRUD(){
     // 获取数据 
     const getData = async (params) => {
         // 组装查询参数，比如这里用 pageIndex 代替了 current
-        console.log("调用getData")
+        console.log("调用getData");
         const query = {
             ...params,
             pageIndex: params.current
@@ -341,7 +371,8 @@ export default function FlightCRUD(){
           onCancel={() => handleCreateModalVisible(false)} 
           modalVisible={createModalVisible}
           handleCreateModalVisible={handleCreateModalVisible}
-          handleCreate={handleCreate}>
+          handleCreate={handleCreate}
+          className={"createForm"}>
         {/* <ProTable
           onSubmit={async (value) => {
             const success = await handleCreate(value);
@@ -361,6 +392,7 @@ export default function FlightCRUD(){
          
       {stepFormValues && Object.keys(stepFormValues).length ? (
         <UpdateForm
+        className="updateForm"
           onSubmit={async (value) => {
             // 发送请求到后端
             const success = await handleUpdate(value);
@@ -388,7 +420,19 @@ export default function FlightCRUD(){
           handleUpdate={handleUpdate}
         />
       ) : null}
-        <DetailsForm></DetailsForm>
+
+      {stepFormValues && Object.keys(stepFormValues).length ? (
+        <DetailsTable className={"DetailForm"}
+          handleDetailModalVisible={handleDetailModalVisible}
+          detailModalVisible={detailModalVisible}
+          onCancel={() => {
+              // 推出Modal
+            handleDetailModalVisible(false);
+            //重置表单内容
+            setStepFormValues({});
+          }}
+          values={stepFormValues}
+        ></DetailsTable>):null}
       
     </div>
         

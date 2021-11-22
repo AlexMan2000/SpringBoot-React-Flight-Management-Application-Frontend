@@ -26,9 +26,6 @@ export default function UpdateForm(props){
         ...props.values,
     });
 
-    console.log(formVals);
-    console.log(values);
-
     const handleNext = async () => {
         const fieldsValue = await form.validateFields();
         setFormVals({ ...formVals, ...fieldsValue});
@@ -134,11 +131,11 @@ export default function UpdateForm(props){
           {...formLayout}
           form={form}
           initialValues={{
-            flightNum: formVals.flight_id,
-            airlineName: formVals.airline_name,
-            sourceAirportName: formVals.dept,
+            flightNum: formVals.flightNum,
+            airlineName: formVals.airlineName,
+            sourceAirportName: formVals.sourceAirportName,
             // departureTime:formVals.dept_time,
-            destAirportName: formVals.arri,
+            destAirportName: formVals.destAirportName,
             // arrivalTime:formVals.arri_time,
             price:formVals.price,
             status:formVals.status

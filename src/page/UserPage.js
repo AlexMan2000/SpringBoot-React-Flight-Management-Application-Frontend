@@ -75,7 +75,12 @@ export default function UserPage({initializingTab,loginInfo}) {
                                        flightsResult={flightsResult}
                                        setFlightResult={setFlightResult}
                                        actionType={actionType}/>,
-        "My customer orders": <CustomerOrders />,
+        "My customer orders": <SearchFlights userType={initializingTab} 
+                                            loginInfo={loginInfo} 
+                                            actionTab={"search"} 
+                                            flightsResult={flightsResult} 
+                                            setFlightResult={setFlightResult} 
+                                            actionType={actionType}/>,
         "Commission statistics": <CommissionStatistics />,
         "Add airport": <EditAirport />,
         "Add airplane": <EditAirplane/>,

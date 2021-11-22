@@ -1,9 +1,11 @@
-import {Input, Space, DatePicker, Select, Card, Button, Divider, Tag, Table} from 'antd';
+import {Input, Space, DatePicker, Select, Card, Button, Divider, Tag, Table,Modal} from 'antd';
 import React, {useState} from "react";
 import {SwapOutlined} from "@ant-design/icons";
 import {statusColor} from "../../lib/statusTag";
 import {dateFormat} from "../../lib/dateFormat";
-import {customerInterfaceColumns,agentInterfaceColumns,globalInterfaceColumns, ticketColumns} from "../../lib/flightData";
+import {globalInterfaceColumns, ticketColumns} from "../../lib/flightData";
+import CustomerModal from "./PurchaseModals/CustomerModal";
+import AgentModal from "./PurchaseModals/AgentModal";
 import axios from "axios";
 import moment from "moment";
 import qs from "qs";
@@ -11,17 +13,156 @@ import qs from "qs";
 const {Search} = Input;
 const {Option} = Select;
 
-export function FlightsResultTable({data,userType,actionType}) {
+export function FlightsResultTable(props) 
+{
+    const {data,userType,actionType,setRowRecord,setCustomerModalVis,setAgentModalVis} = props;
+    const {RangePicker} = DatePicker;
 
+    //创建purchase 回调
+    console.log(data);
+
+    const agentInterfaceColumns = [
+        {
+            title: "User ID",
+            dataIndex: 'uid',
+            key: 'uid',
+        },
+        {
+            title: "Flight No.",
+            dataIndex: "flight_id",
+            key: "flight"
+        },
+        {   
+            title:"Airline Name",
+            dataIndex:"airline",
+            key:"airline"
+        },
+        {
+            title: "Dept. Airport",
+            dataIndex: "dept",
+            key: "dept"
+        },
+        {
+            title: "Arri. Airport",
+            dataIndex: "arri",
+            key: "arri"
+        },
+        {
+            title: "Dept. Time",
+            dataIndex: "dept_time",
+            key: "dept_time"
+        },
+        {
+            title: "Arri. Time",
+            dataIndex: "arri_time",
+            key: "arri_time"
+        },
+        {
+            title: "Price",
+            dataIndex: "price",
+            key: "price"
+        },
+        {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            render: tags => (
+                <>
+                    {tags.map(status => (
+                        <Tag color={statusColor[status]} key={status}>
+                            {status.toUpperCase()}
+                        </Tag>
+                    ))
+                    }
+                </>
+            )
+        },  {
+            title: "Action",
+            key: 'action',
+            render: (text, record) => (
+                <Space size={"middle"}>
+                    <Button disabled={(record.status==("finished"||"onBoarding"))||record.full===true} onClick={()=>{
+                        
+                        setAgentModalVis(true);
+                        setRowRecord(record);
+                        
+                        }} >Book {record.flight_id}</Button>
+                </Space>
+            )
+        }
+    ]
+
+    const customerInterfaceColumns = [
+        {
+            title: "Flight No.",
+            dataIndex: "flight_id",
+            key: "flight"
+        },
+        {
+            title: "Dept. Airport",
+            dataIndex: "dept",
+            key: "dept"
+        },
+        {
+            title: "Arri. Airport",
+            dataIndex: "arri",
+            key: "arri"
+        },
+        {
+            title: "Dept. Time",
+            dataIndex: "dept_time",
+            key: "dept_time"
+        },
+        {
+            title: "Arri. Time",
+            dataIndex: "arri_time",
+            key: "arri_time"
+        },
+        {
+            title: "Price",
+            dataIndex: "price",
+            key: "price"
+        },
+        {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            render: tags => (
+                <>
+                    {tags.map(status => (
+                        <Tag color={statusColor[status]} key={status}>
+                            {status.toUpperCase()}
+                        </Tag>
+                    ))
+                    }
+                </>
+            )
+        },
+        {
+            title: "Action",
+            key: 'action',
+            render: (text, record) => (
+                <Space size={"middle"}>
+                    <Button disabled={record.status==("finished"||"onBoarding")} 
+                    onClick={()=>{
+                        
+                        setCustomerModalVis(true);
+                        setRowRecord(record);
+                        
+                        }}>Book {record.flight_id}</Button>
+                </Space>
+            )
+        }
+    ];
+    
 
     let columns = userType==="customer"? customerInterfaceColumns:userType==="agent"?agentInterfaceColumns:globalInterfaceColumns;
-
-    // console.log(data);
     let dataMap = data;
     if(actionType!=="view"){
      dataMap = data.map(item=>{
         return({key:[item.airlineName,item.flightNum],
         flight_id:item.flightNum,
+        airline:item.airlineName,
         dept:item.sourceAirportName,
         arri:item.destAirportName,
         dept_time:item.departureTime,
@@ -35,6 +176,7 @@ export function FlightsResultTable({data,userType,actionType}) {
             return({
                 key:item.ticketId,
                 ticket_id:item.ticketId,
+                airline:item.airlineName,
                 flight_id:item.flightNumber,
                 dept:item.departAirportName,
                 arri:item.arrivalAirportName,
@@ -49,7 +191,11 @@ export function FlightsResultTable({data,userType,actionType}) {
     if(actionType!=="purchase"){
         columns = columns.filter((item)=>item.title!="Action")
     }
-    // console.log(columns);
+
+    if(actionType==="search"){
+        columns = columns.filter((item)=>item.title!="User ID");
+    }
+    console.log(columns);
     return (
         <Table columns={columns} dataSource={dataMap} size="middle"/>
     )
@@ -61,15 +207,24 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
     // {cities if city, airports if airport}, ...,
     // {airports if city, cities if airport}, {}]
 
+    const {RangePicker} = DatePicker;
+
     const [deptAirport, setDeptAirport] = useState(undefined);
     const [arriAirport, setArriAirport] = useState(undefined);
     const [deptDate, setDeptDate] = useState(""); //today
+    const [deptDate2,setDeptDate2] = useState("");
     const [searchResult, setSearchResult] = useState([]);
     // const [flightsResult, setFlightResult] = useState(null);
     const [flightID, setFlightID] = useState(undefined);
+    // 设置点击购买按钮后的数据
+    const [rowRecord,setRowRecord] = useState(undefined);
 
+    // 设置模态对话框用于提交购买信息
+    const [agentModalVis,setAgentModalVis] = useState(false);
+    const [customerModalVis,setCustomerModalVis] = useState(false);
+    
+    console.log(actionType);
 
-    //for testing ONLY
     const searchAirport=()=>{
         axios({
             url:"http://localhost:8080/index/searchAirports",
@@ -134,12 +289,15 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
         setFlightResult("testing");
     }
 
+
+    // 处理买票请求
     const handlePurchase = ()=>{
         
 
 
     }
 
+    // 处理和ViewFlights相关的请求
     const handleViewFlights = ()=>{
         let sendObject = null;
         if(deptDate===""){
@@ -212,6 +370,7 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
                     {options}
                 </Select>
                 <DatePicker format={dateFormat} onChange={handleChange(setDeptDate)} style={{width:200}} />
+                {/* <RangePicker onChange={()=>{handleChange(setDeptDate);handleChange(setDeptDate2)}} picker="day" style={{width:200}} placeholder={["deptTimeLeftRange","deptTimeRightRange"]}></RangePicker> */}
                 <span style={{padding: 10}}> </span>
                 <Button type="primary" onClick={actionType==="view"?handleViewFlights:handleSearchFlights}>Search</Button>
             </Input.Group>
@@ -230,7 +389,12 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
             <b style={{padding: 10}}> </b>
             <Button type={"primary"} onClick={handleExactSearch}>Exact Searching</Button></div>)}
             <Divider />
-            {flightsResult ? <FlightsResultTable data={flightsResult} userType={userType} actionType={actionType}/> : null}
+            {flightsResult ? <FlightsResultTable data={flightsResult} userType={userType} actionType={actionType} setRowRecord={setRowRecord} setAgentModalVis={setAgentModalVis} setCustomerModalVis={setCustomerModalVis}/> : null}
+            
+            {rowRecord? <AgentModal agentModalVis={agentModalVis} setAgentModalVis={setAgentModalVis} rowRecord={rowRecord}></AgentModal>:null}
+
+            {rowRecord? <CustomerModal customerModalVis={customerModalVis} setCustomerModalVis={setCustomerModalVis} rowRecord={rowRecord}></CustomerModal>:null}
+                
         </Card>
     )
 }

@@ -230,7 +230,15 @@ export const agentInterfaceColumns = [
                 }
             </>
         )
-    },
+    },  {
+        title: "Action",
+        key: 'action',
+        render: (text, record) => (
+            <Space size={"middle"}>
+                <Button disabled={record.status==("finished"||"onBoarding")} >Book {record.flight_id}</Button>
+            </Space>
+        )
+    }
 ]
 
 export const globalInterfaceColumns = [

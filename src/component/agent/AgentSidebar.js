@@ -5,24 +5,32 @@ import {useNavigate} from "react-router-dom";
 
 const {SubMenu} = Menu;
 
-export default function AgentSidebar({updateSelection}) {
+export default function AgentSidebar({updateSelection,setActionType,setFlightResult}) {
     const tagList = {
         "1": "Search flights",
         "2": "Create order",
         "3": "My customer orders",
         "4": "Commission statistics",
         "5": "Top customers",
-        "6": "Logout",
-        "7": "My flights"
+        "6": "Logout"
     }
     const navigate = useNavigate();
+
+    
+    const actionTypeMapping={
+        "1":"search",
+        "2":"purchase",
+        "3":"view"
+    }
 
     const handleSidebarClick = (item) => {
         if (tagList[item.key] == "Logout") {
             // clear local account information
             navigate("/", {replace: true})
         }
-        updateSelection(tagList[item.key])
+        updateSelection(tagList[item.key]);
+        setFlightResult(null);
+        setActionType(actionTypeMapping[item.key]);
 
     }
 
@@ -43,7 +51,6 @@ export default function AgentSidebar({updateSelection}) {
                 <Menu.Item key="2">{tagList['2']}</Menu.Item>
             </SubMenu>
             <SubMenu key="sub2" icon={<UserOutlined />} title="Mine">
-                <Menu.Item key="7">{tagList['7']}</Menu.Item>   
                 <Menu.Item key="3">{tagList['3']}</Menu.Item>
                 <Menu.Item key="4">{tagList['4']}</Menu.Item>
                 <Menu.Item key="5">{tagList['5']}</Menu.Item>
