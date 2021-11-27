@@ -4,7 +4,9 @@ import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 
-export default function LoginCard() {
+export default function LoginCard(props) {
+
+    const {setInitializeType,setRegisterModalVisible,setLoginModalVisible} = props;
     let navigate = useNavigate();
 
     const [form] = Form.useForm();
@@ -28,7 +30,9 @@ export default function LoginCard() {
         }).then(function(response){
             const response_msg = response.data;
             if(response_msg==="success"){
-                //登录成功
+                //登录成功,后台session中有用户信息
+                setLoginModalVisible(false);
+                
                 navigate("/"+activeTab,{replace:true});
             }else{
                 //诊断失败原因
@@ -84,10 +88,10 @@ export default function LoginCard() {
 
     return (
         <Card
-            style={{width: '30%', display: 'block', marginLeft: 'auto', marginRight: 'auto'}}
+            style={{width: '100%', display: 'block', marginLeft: 'auto', marginRight: 'auto'}}
             tabList={tabList}
             activeTab={activeTab}
-            tabBarExtraContent={<a href="/">Back</a>}
+            // tabBarExtraContent={<a href="/">Back</a>}
             onTabChange={onTabChange}
         >
             <Form
@@ -148,7 +152,11 @@ export default function LoginCard() {
                 </Form.Item>)}
                 <Form.Item>
                     <Button type="primary" htmlType="submit" className="login-form-button">Log in</Button>
-                    <Button type="primary" className="register-form-button" style={{marginLeft:"130px"}} onClick={()=>{navigate("/register"+activeTab)}}>Register</Button>
+                    <Button type="primary" className="register-form-button" style={{marginLeft:"270px"}} onClick={()=>{
+                        // navigate("/register"+activeTab)
+                        setRegisterModalVisible(true);
+                        setInitializeType(activeTab);
+                    }}>Register</Button>
                 </Form.Item>
             </Form>
         </Card>

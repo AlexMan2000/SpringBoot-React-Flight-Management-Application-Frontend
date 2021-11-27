@@ -19,10 +19,10 @@ function App() {
         <Router>
             <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/registercustomer" element={<RegisterPage initializeType='customer' />} />
+                {/* <Route path="/login" element={<LoginPage />} /> */}
+                {/* <Route path="/registercustomer" element={<RegisterPage initializeType='customer' />} />
                 <Route path="/registerstaff" element={<RegisterPage initializeType='airlineStaff'/>}/>
-                <Route path="/registeragent" element={<RegisterPage initializeType='bookingAgent'/>}/>
+                <Route path="/registeragent" element={<RegisterPage initializeType='bookingAgent'/>}/> */}
                 <Route path="/customer" element={<UserPage initializingTab='customer' loginInfo={""}/>} />
                 <Route path="/agent" element={<UserPage initializingTab='agent'/> } loginInfo={""} />
                 <Route path="/staff" element={<UserPage initializingTab='staff'/> } loginInfo={""}/>

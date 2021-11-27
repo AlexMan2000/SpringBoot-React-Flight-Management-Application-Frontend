@@ -14,7 +14,6 @@ export default function ViewReports(){
     const {RangePicker} = DatePicker;
     
     useEffect(()=>{
-      console.log("haha");
       setData(sampleData);
     },[]);
 

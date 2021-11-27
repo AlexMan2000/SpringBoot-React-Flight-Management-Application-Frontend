@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react"
-import {Layout, Menu, Breadcrumb} from "antd";
+import React, {useEffect, useState,useRef} from "react"
+import {Layout, Menu, Breadcrumb,Dropdown,Avatar,Button,Space,Modal} from "antd";
 import {CarryOutOutlined, SendOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import CustomerSidebar from "../component/customer/CustomerSidebar";
@@ -23,6 +23,9 @@ import RevenueComparison from "../component/staff/RevenueComparsion";
 import ViewFrequent from "../component/staff/ViewFrequent";
 import AddAgents from "../component/staff/AddAgents";
 import GrantPermission from "../component/staff/GrantPermission";
+import axios from "axios";
+import LoginCard from "../component/login/LoginCard";
+import RegisterCard from "../component/login/RegisterCard";
 
 const {Header, Content, Sider, Footer} = Layout;
 const {SubMenu} = Menu;
@@ -35,6 +38,28 @@ export default function UserPage({initializingTab,loginInfo}) {
     const [collapsed,setCollapsed] =useState(false);
     const [flightsResult, setFlightResult] = useState(null);
     const [actionType,setActionType] = useState("");
+    const [loginModalVisible,setLoginModalVisible] = useState(false);
+    const [registerModalVisible,setRegisterModalVisible] = useState(false);
+    const [initializeType,setInitializeType] = useState("customer");
+    const defaultData = useRef(null);
+
+    useEffect(()=>{
+        console.log("xixi");
+        axios({
+            url:"http://localhost:8080/index/findAllFlights",
+            method:"GET",
+        }).then(function(response){
+            if(response.data){
+                console.log("haha");
+                defaultData.current = response.data;
+            }else{
+                console.log("No Results");
+            }
+        }).catch(function(response){
+            console.log("haha");
+        })
+    },[])
+  
 
     const handleNavigateBar = (page) => {
         setNavigateBar(page.key);
@@ -42,8 +67,8 @@ export default function UserPage({initializingTab,loginInfo}) {
     }
 
     const sidebarList = {
-        customer: <CustomerSidebar updateSelection={setSidebar} setActionType={setActionType} setFlightResult={setFlightResult} />,
-        agent: <AgentSidebar updateSelection={setSidebar} setActionType={setActionType}  setFlightResult={setFlightResult}/>,
+        customer: <CustomerSidebar updateSelection={setSidebar} setActionType={setActionType} defaultData={defaultData} setFlightResult={setFlightResult} />,
+        agent: <AgentSidebar updateSelection={setSidebar} setActionType={setActionType} defaultData={defaultData} setFlightResult={setFlightResult}/>,
         staff: <StaffSidebar updateSelection={setSidebar} setActionType={setActionType}  setFlightResult={setFlightResult}/>,
         global: <GlobalSidebar updateSelection={setSidebar} setActionType={setActionType}  setFlightResult={setFlightResult}/>,
     }
@@ -97,23 +122,62 @@ export default function UserPage({initializingTab,loginInfo}) {
         setNavigateBar(initializingTab)
     }, [])
 
+
+    const menu = (<Menu>
+        <Menu.Item icon={<SettingOutlined />}>
+          <a onClick={()=>{setLoginModalVisible(true);}}>Log In</a>
+        </Menu.Item>
+      </Menu>);
+
+    const onCancelLogin = ()=>{
+        setLoginModalVisible(false);
+    }
+
+    const onCancelRegister =()=>{
+        setRegisterModalVisible(false);
+    }
     return (
+
         <Layout>
+            {<Modal 
+                destroyOnClose
+                title="Login"
+                visible={loginModalVisible}
+                onCancel={() => {onCancelLogin()}}
+                footer={[]}
+                >
+                <LoginCard setInitializeType={setInitializeType}  setLoginModalVisible={setLoginModalVisible} setRegisterModalVisible={setRegisterModalVisible}/>
+            </Modal>}
+            {<Modal 
+                destroyOnClose
+                title="Login"
+                visible={registerModalVisible}
+                onCancel={() => {onCancelRegister()}}
+                footer={[]}
+                >
+                <RegisterCard initializeType={initializeType} setRegisterModalVisible={setRegisterModalVisible} />
+            </Modal>}
             <Header className={"header"} style={{position: 'fixed', zIndex: 2, width: '100%'}}>
+                
                 <Menu
                     theme="dark"
                     mode="horizontal"
                     defaultSelectedKeys={[initializingTab]}
                     selectedKeys={[navigateBar]}
                     onClick={handleNavigateBar}
-                    style={{maginLeft:"300px"}}
+                    style={{marginLeft:"100px"}}
                 >
                     <Menu.Item key="customer">Customer</Menu.Item>
                     <Menu.Item key="agent">Agent</Menu.Item>
                     <Menu.Item key="staff">Staff</Menu.Item>
                     <Menu.Item key="global">Global</Menu.Item>
+                    
                 </Menu>
+                
             </Header>
+            <Dropdown overlay={menu}>
+                    <Avatar style={{marginLeft:"1200px",zIndex:3,position: 'fixed',top:"10px"}} size="large" icon={<UserOutlined />}/>
+                </Dropdown>
             <Layout style={{minHeight: '100vh', marginTop: 64}}>
                 <Sider width={250} height={100} className="site-layout-background" collapsible collapsed={collapsed} onCollapse={setCollapsed}>
                     {sidebarList[navigateBar]}

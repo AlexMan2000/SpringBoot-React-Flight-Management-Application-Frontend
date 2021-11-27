@@ -1,5 +1,5 @@
 import {CarryOutOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
-import {Menu} from "antd";
+import {Menu,Avatar} from "antd";
 import React, {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 
@@ -8,12 +8,12 @@ const {SubMenu} = Menu;
 export default function GlobalSidebar({updateSelection}){
     const tagList = {
         "1": "Search flights",
-        "2": "Logout",
+        "2": "Exit the System",
     }
     const navigate = useNavigate();
 
     const handleSidebarClick = (item) => {
-        if (tagList[item.key] == "Logout") {
+        if (tagList[item.key] == "Exit the System") {
             // clear local account information
             //Todo
             navigate("/", {replace: true})

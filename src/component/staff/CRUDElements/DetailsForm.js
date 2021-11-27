@@ -5,36 +5,47 @@ import moment from "moment";
 import axios from "axios";
 
 export default function DetailsTable(props){
-    const {detailModalVisible,onCancel,handleDetailModalVisible,record} = props;
+    const {detailModalVisible,onCancel,handleDetailModalVisible,values} = props;
 
-    console.log(record);
-    const dataSource = [{
-        email:"asda",
-        name:"Jack",
-        building_num:"No.10",
-        street:"Baker Street",
-        city:"NYC",
-        state:"USA",
-        phone:"1231231234",
-        passportNumber:"E1231414",
-        passportExpiration:"2029-10-21",
-        passportCountry:"China",
-        birthday:"1999-02-02"
-    }]
+    console.log(values);
+    
+    // const dataSource = [{
+    //     email:"asda",
+    //     name:"Jack",
+    //     building_num:"No.10",
+    //     street:"Baker Street",
+    //     city:"NYC",
+    //     state:"USA",
+    //     phone:"1231231234",
+    //     passportNumber:"E1231414",
+    //     passportExpiration:"2029-10-21",
+    //     passportCountry:"China",
+    //     birthday:"1999-02-02"
+    // }]
+
+    const dataSource = values.passengers;
 
     const columns=[
         {
             title:"Email",
             dataIndex:"email",
-            key:"email"
+            key:"email",
+            textWrap:"word-break",
+            width:150,
+            ellipsis:true,
+            fixed:"left"
         },{
             title:"Name",
             dataIndex:"name",
-            key:"name"
+            key:"name",
+            textWrap:"word-break",
+            width:100,
+            ellipsis:true,
+            
         },
         {
             title:"Building Number",
-            dataIndex:"building_num",
+            dataIndex:"buildingNumber",
             key:"building"
         },
         {
@@ -48,12 +59,15 @@ export default function DetailsTable(props){
             key:"city"
         },{
             title:"State",
-            dataIndex:"state",
+            dataIndex:"livingState",
             key:"state"
         },{
             title:"Phone No.",
-            dataIndex:"phone",
-            key:"phone"
+            dataIndex:"phoneNumber",
+            key:"phone",
+            textWrap:"word-break",
+            width:150,
+            ellipsis:true,
         },{
             title:"Passport No.",
             dataIndex:"passportNumber",
@@ -61,7 +75,10 @@ export default function DetailsTable(props){
         },{
             title:"Passport Exp.",
             dataIndex:"passportExpiration",
-            key:"passportexp"
+            key:"passportexp",
+            textWrap:"word-break",
+            width:100,
+            ellipsis:true,
         },{
             title:"Passport Country",
             dataIndex:"passportCountry",
@@ -70,6 +87,9 @@ export default function DetailsTable(props){
             title:"Birthday",
             dataIndex:"birthday",
             key:"birthday",
+            textWrap:"word-break",
+            width:100,
+            ellipsis:true,
         }
 
     ]
@@ -82,10 +102,10 @@ export default function DetailsTable(props){
       title="Customer Details"
       visible={detailModalVisible}
       onCancel={() => onCancel()}
-      width={1000}
+      width={1300}
       footer={[]}
       >
-    <Table columns={columns} dataSource={dataSource}>
+    <Table scroll={{x:1300}} columns={columns} dataSource={dataSource}>
 
     </Table></Modal></>
     )

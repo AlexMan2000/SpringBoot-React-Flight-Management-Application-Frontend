@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {Column} from "@ant-design/charts";
 import {Card, Divider, Typography,InputNumber} from "antd";
 import { useEffect } from "react/cjs/react.development";
+import axios from "axios";
 
 const {Title} = Typography;
 
@@ -18,8 +19,9 @@ export default function TopCustomerChart() {
     ]
 
     useEffect((()=>{
-        setData(testTicket);
-    }))
+        searchTickets();
+        // setData(testTicket);
+    }),[])
 
 
     // for testing ONLY
@@ -69,8 +71,8 @@ export default function TopCustomerChart() {
     ]
 
     const columnConfig = {
-        xField: 'uid',
-        yField: 'sum',
+        xField: 'email',
+        yField: "sum",
         seriesField: '',
         columnWidthRatio: 0.5,
         label: {
@@ -89,12 +91,41 @@ export default function TopCustomerChart() {
     }
 
 
+    const searchCommission = ()=>{
+        axios({
+            method:'GET',
+            url:"http://localhost:8080/bookingAgent/getTopKCommission",
+            params:{"K":topK}
+        }).then(function(response){
+            if(response.data){
+                console.log(response.data);
+                const formattedData = response.data.map((item)=>({"email":item.email,"sum":item.totalCommission}))
+                setData(formattedData);
+            }
+        })
+    }
+
+    const searchTickets = ()=>{
+        axios({
+            method:'GET',
+            url:"http://localhost:8080/bookingAgent/getTopKTickets",
+            params:{"K":topK}
+        }).then(function(response){
+            if(response.data){
+                const formattedData = response.data.map((item)=>({"email":item.email,"sum":item.ticketsFromAgent}))
+                setData(formattedData);
+            }
+        })
+    }
+
     const onTabChange = (key)=>{
         setActiveTab(key);
         if(key==="tickets"){
-            setData(testTicket);
+            searchTickets();
+            // setData(testTicket)
         }else{
-            setData(testCommission);
+            searchCommission();
+            // setData(testCommission);
         }
     }
 

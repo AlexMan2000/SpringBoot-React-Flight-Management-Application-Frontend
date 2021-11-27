@@ -30,7 +30,11 @@ export default function FlightCRUD(){
     const [apiData, setApiData] = useState([]);
     //全局变量，在整个生命周期都有效
     const actionRef = useRef();
+    //全局变量，用于控制是否加载默认数据
+    const defaultRef = useRef(true);
 
+    console.log(defaultRef);
+    
     //异步方法提交数据, 注意这里返回一个异步函数
     const fetchFlightData = async (query)=>{
         return axios({
@@ -38,7 +42,8 @@ export default function FlightCRUD(){
           method:"GET"
         }).then(function(response){
           if(response.data){
-              console.log("有数据");
+            console.log(response.data);
+              defaultRef.current = false;
               return {"data":{...response.data},"success":true};
           }else{
              return {"data":{},"success":false};
@@ -49,6 +54,26 @@ export default function FlightCRUD(){
         })  
        
     }
+
+    const fetchFilteredFlightData = async (query)=>{
+      console.log(query);
+      return axios({
+        url:"http://localhost:8080/airlineStaff/findAllFilteredFlights",
+        method:"POST",
+        data:query
+      }).then(function(response){
+        if(response.data){
+          console.log(response.data);
+            return {"data":{...response.data},"success":true};
+        }else{
+           return {"data":{},"success":false};
+        }
+      }).catch(function(){
+        console.log("返回默认数据")
+        return {"data":dataSource,"success":true};
+      })  
+     
+  }
 
     const dataSource = {
       "records":[
@@ -90,7 +115,23 @@ export default function FlightCRUD(){
 
 
     const handleDelete= (flight_id,airline_name)=>{
-        console.log("delete");
+        axios({
+          url:"http://localhost:8080/airlineStaff/deleteFlight",
+          method:"POST",
+          data:qs.stringify({
+            flightNum:flight_id,
+            airlineName:airline_name
+          })
+        }).then(function(response){
+          if(response.data){
+            actionRef.current.reload();
+
+        message.success("Click on Yes");
+          }
+        }).catch(function(response){
+          message.success("Delete Failed");
+        });
+        
     }
 
     const handleUpdate = (flight_info)=>{
@@ -119,6 +160,7 @@ export default function FlightCRUD(){
               },
             });
             handleCreateModalVisible(false);
+            actionRef.current.reload();
           }else{
             message.error({
               content: 'You have already inserted this airplane information!',
@@ -136,9 +178,8 @@ export default function FlightCRUD(){
         console.log("show info");
     }
 
-    const confirm = (e)=>{
-        console.log(e);
-        message.success("Click on Yes");
+    const confirm = (e,record)=>{
+        handleDelete(record.flightNum,record.airlineName);
     }
 
     const cancel = (e)=>{
@@ -153,7 +194,7 @@ export default function FlightCRUD(){
         {
             title: "Flight Number",
             dataIndex:"flightNum",
-            key:"flight",
+            key:"flightNum",
             textWrap:"word-break",
             width:100,
             ellipsis:true,
@@ -166,7 +207,7 @@ export default function FlightCRUD(){
             textWrap:"word-break",
             width:100,
             ellipsis:true,
-            key:"airline"
+            key:"airlineName"
         },
         {
             title: "Dept. Airport",
@@ -174,7 +215,7 @@ export default function FlightCRUD(){
             textWrap:"word-break",
             width:100,
             ellipsis:true,
-            key: "dept"
+            key: "sourceAirportName"
         },
         {
             title: "Arri. Airport",
@@ -182,7 +223,7 @@ export default function FlightCRUD(){
             textWrap:"word-break",
             width:100,
             ellipsis:true,
-            key: "arri"
+            key: "destAirportName"
         },
         {
             title: "Dept. Time",
@@ -191,13 +232,13 @@ export default function FlightCRUD(){
             // textWrap:"word-break",
             width:150,
             ellipsis:true,
-            key: "dept_time"
+            key: "departureTime"
         },
         {
             title: "Arri. Time",
             dataIndex: "arrivalTime",
             valueType:"dateTime",
-            key: "arri_time",
+            key: "arrivalTime",
             width:150,
             // textWrap:"word-break",
        
@@ -216,7 +257,7 @@ export default function FlightCRUD(){
             title: "Airplane ID",
             dataIndex: "airplaneId",
             hideInSearch:true,
-            key: "airplane_id",
+            key: "airplaneId",
             textWrap:"word-break",
             width:100,
             ellipsis:true,
@@ -246,26 +287,21 @@ export default function FlightCRUD(){
                 <Button onClick={()=>{
                   handleDetailModalVisible(true);
                   setStepFormValues(record);
-                  console.log("view details")
                 }}>Details</Button>
                 <Button onClick={()=>{
                     handleUpdateModalVisible(true);
                     setStepFormValues(record);
-                    console.log("edit");
-
                 }} type={'primary'} size={'small'} >
                   <EditOutlined style={{fontSize: '15px'}} />
                 </Button>
                 <Popconfirm
                      title="Are you sure to delete this row?"
-                    onConfirm={confirm}
+                    onConfirm={(e)=>{confirm(e,record);}}
                     onCancel={cancel}
                     okText="Yes"
                     cancelText="No"
                 >
                 <Button onClick={()=>{
-                    console.log("删除");
-
                 }} type={'primary'} size={'small'} danger >
                   <DeleteOutlined style={{fontSize: '15px'}} />
                 </Button></Popconfirm>
@@ -276,25 +312,48 @@ export default function FlightCRUD(){
     ]
 
     // 获取数据 
-    const getData = async (params) => {
+    const getData = async (params,sort,filter) => {
         // 组装查询参数，比如这里用 pageIndex 代替了 current
-        console.log("调用getData");
-        const query = {
-            ...params,
-            pageIndex: params.current
-        };
-        delete query.current;
+        if(defaultRef.current==true){
+              console.log("调用getData");
+            const query = {
+                ...params,
+                pageIndex: params.current
+            };
+            delete query.current;
 
-        // 发起请求
-        console.log("发起请求")
-        const {data,success} = await fetchFlightData(query); //这里需要返回一个异步函数
+            // 发起请求
+            console.log("发起请求")
+            const {data,success} = await fetchFlightData(query); //这里需要返回一个异步函数
+            
+            // 格式化返回数据
+            return {
+                data: data.records,
+                success,
+                total: data.total,
+            };
+        }else{
+          console.log(defaultRef);
+            console.log("调用getFilteredData");
+            const query = {
+                ...params,
+                pageIndex: params.current
+            };
+            delete query.current;
+    
+            // 发起请求
+            console.log("发起请求");
+            console.log(params);
+            const {data,success} = await fetchFilteredFlightData(query); //这里需要返回一个异步函数
+            
+            // 格式化返回数据
+            return {
+                data: data.records,
+                success,
+                total: data.total,
+            };
+        }
         
-        // 格式化返回数据
-        return {
-            data: data.records,
-            success,
-            total: data.total,
-        };
     };
 
     return (

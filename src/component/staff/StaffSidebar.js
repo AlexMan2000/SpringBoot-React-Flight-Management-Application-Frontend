@@ -30,7 +30,6 @@ export default function StaffSidebar({updateSelection}) {
             // clear local account information
             navigate("/", {replace: true})
         }
-        console.log(item);
         updateSelection(tagList[item.key])
     }
 

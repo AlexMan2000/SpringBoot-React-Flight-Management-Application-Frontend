@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom";
 
 const {SubMenu} = Menu;
 
-export default function AgentSidebar({updateSelection,setActionType,setFlightResult}) {
+export default function AgentSidebar({updateSelection,defaultData,setActionType,setFlightResult}) {
     const tagList = {
         "1": "Search flights",
         "2": "Create order",
@@ -16,7 +16,6 @@ export default function AgentSidebar({updateSelection,setActionType,setFlightRes
     }
     const navigate = useNavigate();
 
-    
     const actionTypeMapping={
         "1":"search",
         "2":"purchase",
@@ -29,7 +28,7 @@ export default function AgentSidebar({updateSelection,setActionType,setFlightRes
             navigate("/", {replace: true})
         }
         updateSelection(tagList[item.key]);
-        setFlightResult(null);
+            setFlightResult(null);
         setActionType(actionTypeMapping[item.key]);
 
     }

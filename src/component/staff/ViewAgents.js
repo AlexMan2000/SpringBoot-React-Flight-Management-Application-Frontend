@@ -1,4 +1,4 @@
-import {Card, Form, Input, Button,Table,InputNumber} from 'antd';
+import {Card, Form, Input, Button,Table,InputNumber,Space} from 'antd';
 import {Bar} from "@ant-design/charts";
 import React, {useState,useEffect} from "react";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
@@ -10,6 +10,7 @@ export default function ViewAgents(){
 
     // sales 和 commission
     const [activeTab,setActiveTab] = useState("sales");
+    const [past,setPast] = useState("month");
     const [topK,setTopK] = useState(5);
     const [data,setData]=useState([]);
 
@@ -68,15 +69,46 @@ export default function ViewAgents(){
         {key: 'commission', tab: 'Commission Ranking'},
     ]
 
+    const handleSearchSales=()=>{
+        axios.get("http://localhost:8080/airlineStaff/getTopK",{
+            params:{
+                type:"sales",
+                K:topK,
+                past:past
+            }
+        }).then(function(response){
+            if(response.data){
+                const dataMap = response.data.map((item)=>({type:item.email,sales:item.value}));
+                setData(dataMap);
+            }
+        }).catch(function(response){})
+    }
+
+    const handleSearchCommission=()=>{
+
+        axios.get("http://localhost:8080/airlineStaff/getTopK",{
+            params:{
+                type:"commission",
+                K:topK,
+            }
+        }).then(function(response){
+            if(response.data){
+                const dataMap = response.data.map((item)=>({type:item.email,commission:item.value}));
+                setData(dataMap);
+            }
+        }).catch(function(response){})
+
+    }
+
     const onTabChange = (key)=>{
-        console.log("tab change");
         setActiveTab(key);
+        setPast("month");
         if(key==="sales"){
-            setData(topSalesData);
+            // setData(topSalesData);
+            handleSearchSales();
         }else{
-            console.log(key);
-            console.log("top commission");
-            setData(topCommissionData);
+            // setData(topCommissionData);
+            handleSearchCommission();
         }
     }
 
@@ -105,7 +137,11 @@ export default function ViewAgents(){
     <Card tabList={tabList}
         activeTab={activeTab}
         onTabChange={onTabChange}
-        tabBarExtraContent={<><span style={{marginRight:5}}>Top</span><InputNumber addonBefore="+" addonAfter="$" min={1} onChange={onNumberChange} defaultValue={5}></InputNumber><span style={{marginLeft:5}}>Agents</span></>}
+        tabBarExtraContent={<>
+        {activeTab==="sales"&&(<Space ><Button type={"primary"} onClick={()=>{setPast("month")}}>Past Month</Button>
+        <Button  type={"primary"} onClick={()=>{setPast("year")}}>Past Year</Button></Space>)}
+        <Space><span style={{marginRight:5,marginLeft:10}}>Top</span><InputNumber addonBefore="+" addonAfter="$" min={1} onChange={onNumberChange} defaultValue={5}></InputNumber><span style={{marginLeft:5}}>Agents</span></Space>
+        </>}
         hoverable={true}>
 
 
@@ -114,9 +150,7 @@ export default function ViewAgents(){
         {...config}
         sort 
         onReady={(plot)=>{
-            console.log("xixi");
                 plot.chart.on("element:click",(evt)=>{
-                    console.log(evt)
                 });
             }}
         />;

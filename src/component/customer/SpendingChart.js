@@ -3,61 +3,82 @@ import {Pie} from "@ant-design/charts";
 import {Input, Space, DatePicker, Select, Card, Button, Divider, Tag, Table} from 'antd';
 import {dateFormat} from "../../lib/dateFormat";
 import axios from "axios";
+import moment from "moment";
 
 export default function SpendingChart() {
 
-    const [spendingData, setSpendingData] = useState(null);
+    const [spendingData, setSpendingData] = useState([]);
+    const [startDate,setStart] = useState(moment().subtract(30, 'days'));
+    const [endDate,setEnd] = useState(moment());
 
-    //for testing ONLY
-    const testData = [
-        {
-            type: 'January',
-            value: 2930.8,
-        },
-        {
-            type: 'February',
-            value: 1034.2,
-        },
-        {
-            type: 'March',
-            value: 3832.9,
-        },
-        {
-            type: 'April',
-            value: 1564.0,
-        },
-        {
-            type: 'May',
-            value: 3013.6,
-        },
-        {
-            type: 'June',
-            value: 4566.2,
-        },
-    ];
+    useEffect(()=>{
+        axios({
+            url:"http://localhost:8080/customer/trackSpending",
+            method:"POST",
+            data:{startDate:startDate,
+                endDate:endDate,
+                email:"12345@qq.com"},
+        }).then(function(response){
+            if(response.data){
+                console.log(response.data);
+            const dataMap = response.data.map((item)=>({type:item.timestamp,value:item.value}))
+            setSpendingData(dataMap);}
+        })
+    },[])
 
+    const setStartDate = (value)=>{
+        setStart(value);
+    }
 
-    const handleSearch =()=>{
-
+    const setEndDate = (value)=>{
+        setEnd(value);
     }
 
     const handleSubmit=()=>{
+        console.log(startDate);
+        console.log(endDate);
+
+        
+    }
+
+    const handleChange = (value,type)=>{
+        let start = 0;
+        let end = 0;
+        if(type=="start"){
+            start = value
+            end = endDate;}
+            else{
+                start = startDate;
+                end = value;}
         axios({
-            url:"http://",
+            url:"http://localhost:8080/customer/trackSpending",
             method:"POST",
-            data:"",
+            data:{startDate:start,
+                endDate:end,
+                email:"12345@qq.com"},
+        }).then(function(response){
+            if(response.data.length>0){
+                console.log(response.data);
+            const dataMap = response.data.map((item)=>({type:item.timestamp,value:item.value}))
+            setSpendingData(dataMap);
+            if(type=="start"){
+            setStartDate(start);}
+            else{
+            setEndDate(end);}}else{
+                setSpendingData([{item:"9",value:9999}])
+            }
         })
     }
 
     const chartConfig = {
         appendPadding: 10,
-        data: testData, // TODO: use props or ask for the server
+        data: spendingData, // TODO: use props or ask for the server
         angleField: 'value',
         colorField: 'type',
         radius: 0.9,
         meta: {
             type: {
-                alias: 'Date Range',
+                alias: 'Month',
             },
             value: {
                 alias: 'Total Spending',
@@ -74,11 +95,10 @@ export default function SpendingChart() {
         <Card title="See your amazing trips, Username!">
             <Input.Group>
 
-            <DatePicker format={dateFormat} placeholder={"startDate"}  onChange={handleSearch} style={{width:200}} />
-            <b style={{padding: 90}}> </b>
-            <DatePicker format={dateFormat} placeholder={"endDate"} onChange={handleSearch} style={{width:200}} />
-            <b style={{padding: 90}}> </b>
-            <Button type={"primary"} onClick={handleSubmit}>Display</Button>
+            <DatePicker format={dateFormat} placeholder={"startDate"} defaultValue={startDate} onChange={(value)=>{handleChange(value,"start");}} style={{width:200}} />
+            <b style={{padding: 190}}> </b>
+            <DatePicker format={dateFormat} placeholder={"endDate"} defaultValue={endDate} onChange={(value)=>{handleChange(value,"end")}} style={{width:200}} />
+            <b style={{padding: 160}}> </b>
             </Input.Group>
             <Pie {...chartConfig} />
         </Card>

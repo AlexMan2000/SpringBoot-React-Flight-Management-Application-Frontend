@@ -12,7 +12,7 @@ export default function HomePage() {
             <RcQueueAnim type="left" >
                 <Title key="ele1" style={{}}>Welcome to Our Airline System</Title>
                 <Button key="ele2" type="primary" shape="circle" size="large">
-                    <Link to="/login">
+                    <Link to="/global">
                         <ArrowRightOutlined />
                     </Link>
                 </Button>

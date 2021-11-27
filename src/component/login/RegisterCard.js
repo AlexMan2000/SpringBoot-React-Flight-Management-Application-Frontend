@@ -19,8 +19,8 @@ import {
   message
 } from 'antd';
 
-export default function RegisterCard({initializeType}){
-
+export default function RegisterCard({initializeType,setRegisterModalVisible}){
+  console.log(initializeType);
     const { Option } = Select;
     const navigate = useNavigate();
     const residences = [
@@ -97,7 +97,7 @@ export default function RegisterCard({initializeType}){
         axios({
           method:'POST',
           url:initializeType==="customer"?'http://localhost:8080/register/registerCustomer'
-          :initializeType==="airlineStaff"?'http://localhost:8080/register/registerAirlineStaff':
+          :initializeType==="staff"?'http://localhost:8080/register/registerAirlineStaff':
           'http://localhost:8080/register/registerBookingAgent',
           data:values
         }).then(function(response){
@@ -168,13 +168,13 @@ export default function RegisterCard({initializeType}){
       const checkEmail = (inititalizeType,value,callback)=>{
         axios({
             method:'GET',
-            url:(initializeType==="bookingAgent")?'http://localhost:8080/register/validateBookingAgent':
+            url:(initializeType==="agent")?'http://localhost:8080/register/validateBookingAgent':
             "http://localhost:8080/register/validateCustomer",
             params:{"email":value}
         }).then(function(response){
             console.log(response);
             if(response.data.valid===false){
-                if(initializeType==="bookingAgent"){
+                if(initializeType==="agent"){
                 callback("Agent already registered!");}
                 else{
                     callback("Customer already registered!")
@@ -215,7 +215,7 @@ export default function RegisterCard({initializeType}){
             prefix: '86',
           }}
           scrollToFirstError
-        > {initializeType!=="airlineStaff"&&(
+        > {initializeType!=="staff"&&(
           <Form.Item
             name="email"
             label="E-mail"
@@ -240,7 +240,7 @@ export default function RegisterCard({initializeType}){
           </Form.Item>)
         }
 
-        { initializeType==="airlineStaff"&&(
+        { initializeType==="staff"&&(
           <Form.Item
           name= "username"
           label= "Username"
@@ -335,7 +335,7 @@ export default function RegisterCard({initializeType}){
           </Form.Item>
     
 
-          {initializeType==="airlineStaff"&&(
+          {initializeType==="staff"&&(
           <Form.Item
             name="firstName"
             label="First Name"
@@ -352,7 +352,7 @@ export default function RegisterCard({initializeType}){
           </Form.Item>)
           }
 
-          {initializeType==="airlineStaff"&&(
+          {initializeType==="staff"&&(
           <Form.Item
             name="lastName"
             label="Last Name"
@@ -368,7 +368,7 @@ export default function RegisterCard({initializeType}){
             <Input style={{"width":"80%"}}/>
           </Form.Item>)}
   
-          {initializeType!=="bookingAgent"&&(
+          {initializeType!=="agent"&&(
           <Form.Item
           name="birthday"
           label="Birth Day"
@@ -400,7 +400,7 @@ export default function RegisterCard({initializeType}){
             />
           </Form.Item>)}
     
-          {initializeType==="airlineStaff"&&(
+          {initializeType==="staff"&&(
           <Form.Item
             name="airlineName"
             label="Airline Name"
@@ -517,7 +517,7 @@ export default function RegisterCard({initializeType}){
             <Input style={{width:"80%"}}></Input>
           </Form.Item>)}
 
-          {initializeType==="bookingAgent"&&(
+          {initializeType==="agent"&&(
           <Form.Item
             name="bookingAgentId"
             label="Agent Id"
@@ -598,7 +598,7 @@ export default function RegisterCard({initializeType}){
             <Button type="primary" htmlType="submit">
               Register
             </Button>
-            <Button type="primary" onClick={()=>{navigate("/login")}}>
+            <Button type="primary" onClick={()=>{setRegisterModalVisible(false);}}>
               Back
             </Button>
           </Form.Item>
