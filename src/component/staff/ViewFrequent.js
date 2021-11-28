@@ -1,18 +1,22 @@
-import {Card, Modal,Form, Input,Tooltip, Button,Table,DatePicker,InputNumber,Space} from 'antd';
+import {Card, Modal,Form, Input,Tooltip, Button,Table,DatePicker,InputNumber,Space,Spin,message} from 'antd';
 import {Bar} from "@ant-design/charts";
-import React, {useState,useEffect} from "react";
+import React, {useState,useEffect,useRef} from "react";
 import {LockOutlined, UserOutlined,QuestionCircleOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import { SettingOutlined } from '@ant-design/icons';
 
+
+// 设置最大等待时间
+axios.defaults.timeout = 1000;
 const {RangePicker} = DatePicker;
 
 export default function ViewFrequent(){
      // sales 和 commission
      const [activeTab,setActiveTab] = useState("sales");
-     const [topK,setTopK] = useState(5);
-     const [data,setData]=useState([]);
+     const [topK,setTopK] = useState(10);
+     const [data,setData]=useState(null);
+     const originData = useRef(null);
      const [modalVisiblibity,setModalVisibility] = useState(false);
      const [modalEmail,setModalEmail] = useState("");
      const [tableData,setTableData] = useState([]);
@@ -162,7 +166,8 @@ export default function ViewFrequent(){
      ]
  
      useEffect(()=>{
-         setData(topSalesData);
+        //  setData(topSalesData);
+        getCustomerData();
      },[])
  
      const tabList = [
@@ -175,9 +180,42 @@ export default function ViewFrequent(){
          setTopK(value);
      }
 
+     const getCustomerData = ()=>{
+        axios.get("http://localhost:8080/airlineStaff/getTopKCustomers",
+        {
+            params:{
+                K:topK,
+                airlineName:null
+            },
+            }).then(function(response){
+                if(response.data){
+                    originData.current = response.data;
+                    const dataMap = processData();
+                    setData(dataMap);
+                }
+        }).catch(function(response){
+            setData(topSalesData);
+            setTableData(tableSampleData);
+            message.error("数据获取失败,使用默认数据");
+        })
+     }
+
+     const processData = (value,past)=>{
+        const dataMap = originData.current.map((item)=>{
+                return {customer:item.email,tickets:item.ticketsTotal}
+            
+        }
+            )
+        return dataMap;
+     }
+     const handleChangeTime = (value)=>{
+        console.log(value);
+        const dataMap = processData(value);
+        setData(dataMap);
+     }
 
      const renderLastYear = ()=>{
-
+        
     }
 
     const renderLastMonth = ()=>{
@@ -192,7 +230,7 @@ export default function ViewFrequent(){
           <Space direction="horizontal" size={10}>
           <Button onClick={renderLastYear} type={"primary"}>Last Year</Button>
           <Button onClick={renderLastMonth} type={"primary"}>Last Month</Button>
-          <RangePicker picker="month"></RangePicker>
+          <RangePicker picker="day" onChange={handleChangeTime}></RangePicker>
           <>
           <span style={{marginRight:2}}>Top</span>
             <InputNumber min={1} onChange={onNumberChange} defaultValue={5}></InputNumber>
@@ -205,7 +243,7 @@ export default function ViewFrequent(){
  
  
      var config = {
-         data: data.slice(0,topK),
+         data: data?data.slice(0,topK):[],
          xField: "tickets",
          yField: 'customer',
          legend: { position: 'top-left' },
@@ -225,9 +263,7 @@ export default function ViewFrequent(){
         setTableData(tableSampleData);
         setModalEmail(event.data.data.customer);
         setModalVisibility(true);
-        
-        // console.log(event);
-        // console.log(modalVisiblibity);
+
     }
 
     const handleCancel = () => {
@@ -240,7 +276,8 @@ export default function ViewFrequent(){
         tabBarExtraContent={renderTabExtra()}
         hoverable={true}>
         
-        <Bar 
+        {!data&&(<Spin size={"large"}></Spin>)}
+        {data&&(<><Bar 
         {...config}
         sort 
         onReady={(plot)=>{
@@ -259,7 +296,7 @@ export default function ViewFrequent(){
                 </Table>
             </Card>
 
-        </Modal>
+        </Modal></>)}
         
     </Card>)
 }

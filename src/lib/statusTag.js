@@ -1,7 +1,7 @@
 export const statusColor = {
-    "finished": "purple",
     "upcoming": "blue",
     "cancelled":"gray",
-    "onBoarding": "green",
-    "delayed": "red"
+    "checking in": "yellow",
+    "delayed": "red",
+    "on time":"green"
 }

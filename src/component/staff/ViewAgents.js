@@ -1,4 +1,4 @@
-import {Card, Form, Input, Button,Table,InputNumber,Space} from 'antd';
+import {Card, Form, Input, Button,Table,InputNumber,Space,Spin} from 'antd';
 import {Bar} from "@ant-design/charts";
 import React, {useState,useEffect} from "react";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
@@ -6,14 +6,18 @@ import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import { SettingOutlined } from '@ant-design/icons';
 
+// 设置最大等待时间
+axios.defaults.timeout = 1000;
+
 export default function ViewAgents(){
 
     // sales 和 commission
     const [activeTab,setActiveTab] = useState("sales");
-    const [past,setPast] = useState("month");
+    const [past,setPast] = useState("year");
     const [topK,setTopK] = useState(5);
-    const [data,setData]=useState([]);
+    const [data,setData]=useState(null);
 
+    console.log(past);
     const topSalesData =[
         {
             type:"22@23.com",
@@ -37,8 +41,7 @@ export default function ViewAgents(){
         }
     ]
 
-    useEffect(()=>{
-        setData(topSalesData);
+    useEffect(()=>{handleSearchSales()
     },[])
 
     const topCommissionData=[
@@ -75,13 +78,17 @@ export default function ViewAgents(){
                 type:"sales",
                 K:topK,
                 past:past
-            }
+            },
+            timeout:1000
         }).then(function(response){
             if(response.data){
-                const dataMap = response.data.map((item)=>({type:item.email,sales:item.value}));
+                console.log(response.data);
+                const dataMap = response.data.map((item)=>({type:item.email,sales:item.totalSales}));
                 setData(dataMap);
             }
-        }).catch(function(response){})
+        }).catch(function(response){
+            setData(topSalesData);
+        })
     }
 
     const handleSearchCommission=()=>{
@@ -90,24 +97,30 @@ export default function ViewAgents(){
             params:{
                 type:"commission",
                 K:topK,
+                past:past
             }
         }).then(function(response){
             if(response.data){
-                const dataMap = response.data.map((item)=>({type:item.email,commission:item.value}));
+                const dataMap = response.data.map((item)=>({type:item.email,commission:item.commissionFees}));
+                console.log(dataMap);
                 setData(dataMap);
             }
-        }).catch(function(response){})
+        }).catch(function(response){
+            setData(topCommissionData);
+        })
 
     }
 
     const onTabChange = (key)=>{
         setActiveTab(key);
-        setPast("month");
+    
         if(key==="sales"){
             // setData(topSalesData);
+            setData(null);
             handleSearchSales();
         }else{
             // setData(topCommissionData);
+            setData(null);
             handleSearchCommission();
         }
     }
@@ -119,7 +132,7 @@ export default function ViewAgents(){
 
 
     var config = {
-        data: data.slice(0,topK),
+        data: data?data.slice(0,topK):null,
         xField: activeTab==="sales"?'sales':"commission",
         yField: 'type',
         legend: { position: 'top-left' },
@@ -144,16 +157,15 @@ export default function ViewAgents(){
         </>}
         hoverable={true}>
 
-
-        
-        <Bar 
+        {!data&&(<Spin size="large"></Spin>)}
+        {data&&(<Bar 
         {...config}
         sort 
         onReady={(plot)=>{
                 plot.chart.on("element:click",(evt)=>{
                 });
             }}
-        />;
+        />)}
 
 
 

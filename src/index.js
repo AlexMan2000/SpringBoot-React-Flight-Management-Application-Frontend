@@ -23,10 +23,10 @@ function App() {
                 {/* <Route path="/registercustomer" element={<RegisterPage initializeType='customer' />} />
                 <Route path="/registerstaff" element={<RegisterPage initializeType='airlineStaff'/>}/>
                 <Route path="/registeragent" element={<RegisterPage initializeType='bookingAgent'/>}/> */}
-                <Route path="/customer" element={<UserPage initializingTab='customer' loginInfo={""}/>} />
-                <Route path="/agent" element={<UserPage initializingTab='agent'/> } loginInfo={""} />
-                <Route path="/staff" element={<UserPage initializingTab='staff'/> } loginInfo={""}/>
-                <Route path="/global" element={<UserPage initializingTab='global'/> } loginInfo={""}/>
+                <Route path="/customer" element={<UserPage initializingTab='customer' />} />
+                <Route path="/agent" element={<UserPage initializingTab='agent'/> }  />
+                <Route path="/staff" element={<UserPage initializingTab='staff'/> } />
+                <Route path="/global" element={<UserPage initializingTab='global'/> } />
             </Routes>
         </Router>
     )

@@ -1,23 +1,45 @@
-import {Card, Form, Input, Button,Table,DatePicker,Space} from 'antd';
+import {Card, Form, Input, Button,Table,DatePicker,Space,message} from 'antd';
 import { Column } from '@ant-design/charts';
-import React, {useState,useEffect} from "react";
+import React, {useState,useEffect,useRef} from "react";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import { SettingOutlined } from '@ant-design/icons';
 
 export default function TopDestinations(){
-    const [data,setData]=useState();
+    const [data,setData]=useState([]);
     const [startDate,setStartDate]=useState(undefined);
     const [endDate,setEndDate] = useState(undefined);
+    const past = useRef("year");
 
     const {RangePicker} = DatePicker;
     
-    useEffect(()=>{},[]);
+    useEffect(()=>{
+      getDestinationData("year");
+    },[]);
 
     const tabList = [
         {key: 'sales', tab: 'Sales Report'},
     ]
+
+    const getDestinationData = (past)=>{
+      axios.get("http://localhost:8080/airlineStaff/topDestinations",
+      {
+        params:{
+          past:past,
+        }
+      }).then(function(response){
+          message.success("数据加载成功");
+          console.log(response.data);
+          const dataMap = response.data.map((item)=>({type:item.type,value:item.value}))
+          console.log(dataMap);
+          setData(dataMap);
+
+      }).catch(function(){
+          message.error("访问超时，使用默认数据");
+          setData(sampleData);
+      })
+    }
 
     var sampleData = [
         {
@@ -54,9 +76,9 @@ export default function TopDestinations(){
         },
       ];
       var config = {
-        data: sampleData,
+        data: data,
         xField: 'type',
-        yField: 'sales',
+        yField: 'value',
         label: {
           position: 'middle',
           style: {
@@ -78,11 +100,13 @@ export default function TopDestinations(){
 
 
       const renderLastYear = ()=>{
-
+        past.current = "year";
+        getDestinationData("year");
       }
 
       const renderLast3Month = ()=>{
-
+        past.current = "3 months";
+        getDestinationData("month");
 
       }
 
@@ -100,7 +124,7 @@ export default function TopDestinations(){
 
 
       return (
-      <Card title="Here is the brief report"
+      <Card title={"Top Destinations in the last"+ past.current}
       tabList={tabList}
       hoverable={true}
       tabBarExtraContent={renderTabExtra()}

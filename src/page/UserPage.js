@@ -30,7 +30,7 @@ import RegisterCard from "../component/login/RegisterCard";
 const {Header, Content, Sider, Footer} = Layout;
 const {SubMenu} = Menu;
 
-export default function UserPage({initializingTab,loginInfo}) {
+export default function UserPage({initializingTab}) {
     let navigate = useNavigate();
 
     const [navigateBar, setNavigateBar] = useState("customer");
@@ -42,6 +42,8 @@ export default function UserPage({initializingTab,loginInfo}) {
     const [registerModalVisible,setRegisterModalVisible] = useState(false);
     const [initializeType,setInitializeType] = useState("customer");
     const defaultData = useRef(null);
+    // 在全局记录用户的登录信息(简单实现)
+    const loginInfo = useRef(null);
 
     useEffect(()=>{
         console.log("xixi");

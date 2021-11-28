@@ -1,20 +1,54 @@
-import {Card, Form, Input, Button,Table,DatePicker,Space} from 'antd';
+import {Card, Form, Input, Button,Table,DatePicker,Space,Statistic,message,Spin} from 'antd';
 import { Pie } from '@ant-design/charts';
-import React, {useState,useEffect} from "react";
+import React, {useState,useEffect,useRef} from "react";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import { SettingOutlined } from '@ant-design/icons';
 
+axios.defaults.timeout = 1000;
+
 export default function RevenueComparison(){
 
-    const [data,setData]=useState();
+    const [data,setData]=useState(null);
     const [startDate,setStartDate]=useState(undefined);
     const [endDate,setEndDate] = useState(undefined);
+    const [totalSales,setTotalSales] = useState(undefined);
+    const past = useRef("year");
 
     const {RangePicker} = DatePicker;
     
-    useEffect(()=>{},[]);
+    useEffect(()=>{
+      getRevenueData("year","Spring Airlines");
+    },[]);
+
+    const getRevenueData = (value,airlineName)=>{
+      axios.get("http://localhost:8080/airlineStaff/revenueComparison",
+      {
+        params:{
+          past:value,
+          airlineName:"Spring Airlines"
+        }
+      }).then(function(response){
+          message.success("数据加载成功");
+          const dataMap = response.data.map((item)=>({type:item.type,value:item.value}))
+          const totalSales = dataMap.reduce(getSum,0);//这个零是初始化为零开始累加的意思
+          console.log(dataMap);
+          setData(dataMap);
+          setTotalSales(totalSales)
+
+      }).catch(function(){
+          message.error("访问超时，使用默认数据");
+
+      })
+
+    }
+
+
+    const getSum = (total,num)=>{
+      return total+num.value;
+    }
+
 
     const tabList = [
         {key: 'revenue', tab: 'Revenue Comparison'},
@@ -48,7 +82,7 @@ export default function RevenueComparison(){
       ];
       var config = {
         appendPadding: 10,
-        data: sampleData,
+        data: data,
         angleField: 'value',
         colorField: 'type',
         radius: 0.75,
@@ -61,14 +95,17 @@ export default function RevenueComparison(){
       };
 
       const renderLastYear = ()=>{
-
+        past.current = "year";
+        getRevenueData("year","Spring Airlines");
     }
 
         const renderLastMonth = ()=>{
-
+          past.current = "month";
+          getRevenueData("month","Spring Airlines")
 
     }
 
+    const loadingHolder = Boolean(data);
 
       const renderTabExtra = ()=>{
 
@@ -77,7 +114,7 @@ export default function RevenueComparison(){
             <Space direction="horizontal" size={12}>
             <Button onClick={renderLastYear} type={"primary"}>Last Year</Button>
             <Button onClick={renderLastMonth} type={"primary"}>Last Month</Button>
-            <RangePicker picker="day"></RangePicker></Space>
+            </Space>
         )
       }
 
@@ -87,6 +124,12 @@ export default function RevenueComparison(){
       tabList={tabList}
       hoverable={true}
       tabBarExtraContent={renderTabExtra()}>
-        <Pie {...config} />
+      <Statistic title={"Total Sales in (USD) over the last "+past.current}
+                        value={totalSales}
+                        loading={!loadingHolder}
+                        precision={2}
+                        style={{width: '100%'}}></Statistic>
+         {!data&&(<Spin size="large"></Spin>)}
+       {data&&( <Pie {...config} />)}
       </Card>);
 }

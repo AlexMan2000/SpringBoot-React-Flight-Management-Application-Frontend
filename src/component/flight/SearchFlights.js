@@ -84,7 +84,7 @@ export function FlightsResultTable(props)
             key: 'action',
             render: (text, record) => (
                 <Space size={"middle"}>
-                    <Button disabled={(record.status==("finished"||"onBoarding"))||record.full===true} onClick={()=>{
+                    <Button disabled={(record.status==("cancelled"||"checking in"))||record.full===true} onClick={()=>{
                         
                         setAgentModalVis(true);
                         setRowRecord(record);
@@ -146,7 +146,7 @@ export function FlightsResultTable(props)
             key: 'action',
             render: (text, record) => (
                 <Space size={"middle"}>
-                    <Button disabled={record.status==("finished"||"onBoarding")} 
+                    <Button disabled={record.status==("cancelled"||"checking in")} 
                     onClick={()=>{
                         
                         setCustomerModalVis(true);
