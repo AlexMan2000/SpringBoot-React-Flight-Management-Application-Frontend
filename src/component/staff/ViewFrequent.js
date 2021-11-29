@@ -1,11 +1,11 @@
-import {Card, Modal,Form, Input,Tooltip, Button,Table,DatePicker,InputNumber,Space,Spin,message} from 'antd';
+import {Card, Modal,Form, Input,Tooltip, Button,Table,DatePicker,InputNumber,Space,Spin,message,Tag} from 'antd';
 import {Bar} from "@ant-design/charts";
 import React, {useState,useEffect,useRef} from "react";
 import {LockOutlined, UserOutlined,QuestionCircleOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import { SettingOutlined } from '@ant-design/icons';
-
+import {statusColor} from "../../lib/statusTag";
 
 // 设置最大等待时间
 axios.defaults.timeout = 1000;
@@ -15,8 +15,8 @@ export default function ViewFrequent(){
      // sales 和 commission
      const [activeTab,setActiveTab] = useState("sales");
      const [topK,setTopK] = useState(10);
-     const [data,setData]=useState(null);
-     const originData = useRef(null);
+     const [data,setData]=useState([]);
+     const originData = useRef([]);
      const [modalVisiblibity,setModalVisibility] = useState(false);
      const [modalEmail,setModalEmail] = useState("");
      const [tableData,setTableData] = useState([]);
@@ -53,7 +53,10 @@ export default function ViewFrequent(){
              airline:"Cathay Pacific",
              dept_time:"2020-03-03",
              arri_time:"2021-01-01",
-             price:9090
+             price:9090,
+             dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
          },
          {
              key:"2",
@@ -61,7 +64,10 @@ export default function ViewFrequent(){
              airline:"Cathay Pacific",
              dept_time:"2020-03-03",
              arri_time:"2021-01-01",
-             price:9090
+             price:9090,
+             dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
          },
          {
              key:"3",
@@ -69,70 +75,100 @@ export default function ViewFrequent(){
              airline:"Cathay Pacific",
              dept_time:"2020-03-03",
              arri_time:"2021-01-01",
-             price:9090
+             price:9090,
+             dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
          },{
             key:"4",
             flight_id:"MK5888",
             airline:"Cathay Pacific",
             dept_time:"2020-03-03",
             arri_time:"2021-01-01",
-            price:9090
+            price:9090,
+            dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
         },{
             key:"5",
             flight_id:"MK5888",
             airline:"Cathay Pacific",
             dept_time:"2020-03-03",
             arri_time:"2021-01-01",
-            price:9090
+            price:9090,
+            dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
         },{
             key:"6",
             flight_id:"MK5888",
             airline:"Cathay Pacific",
             dept_time:"2020-03-03",
             arri_time:"2021-01-01",
-            price:9090
+            price:9090,
+            dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
         },{
             key:"7",
             flight_id:"MK5888",
             airline:"Cathay Pacific",
             dept_time:"2020-03-03",
             arri_time:"2021-01-01",
-            price:9090
+            price:9090,
+            dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
         },{
             key:"8",
             flight_id:"MK5888",
             airline:"Cathay Pacific",
             dept_time:"2020-03-03",
             arri_time:"2021-01-01",
-            price:9090
+            price:9090,
+            dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
         },{
             key:"9",
             flight_id:"MK5888",
             airline:"Cathay Pacific",
             dept_time:"2020-03-03",
             arri_time:"2021-01-01",
-            price:9090
+            price:9090,
+            dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
         },{
             key:"10",
             flight_id:"MK5888",
             airline:"Cathay Pacific",
             dept_time:"2020-03-03",
             arri_time:"2021-01-01",
-            price:9090
+            price:9090,
+            dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
         },{
             key:"11",
             flight_id:"MK5888",
             airline:"Cathay Pacific",
             dept_time:"2020-03-03",
             arri_time:"2021-01-01",
-            price:9090
+            price:9090,
+            dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
         },{
             key:"12",
             flight_id:"MK5888",
             airline:"Cathay Pacific",
             dept_time:"2020-03-03",
             arri_time:"2021-01-01",
-            price:9090
+            price:9090,
+            dept:"PVG",
+             arri:"SZX",
+             status:["on time"]
         }
      ]
 
@@ -159,9 +195,35 @@ export default function ViewFrequent(){
             key: "arri_time"
         },
         {
+            title: "Dept. Airport",
+            dataIndex:"dept",
+            key:"dept"
+
+        },
+        {
+            title: "Arri. Airport",
+            dataIndex:"arri",
+            key:"arri"
+        },
+        {
             title: "Price",
             dataIndex: "price",
             key: "price"
+        },
+        {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            render: tags => (
+                <>
+                    {tags.map(status => (
+                        <Tag color={statusColor[status]} key={status}>
+                            {status.toUpperCase()}
+                        </Tag>
+                    ))
+                    }
+                </>
+            )
         }
      ]
  
@@ -190,7 +252,12 @@ export default function ViewFrequent(){
             }).then(function(response){
                 if(response.data){
                     originData.current = response.data;
+                    // console.log(response.data);
                     const dataMap = processData();
+                    console.log(originData.current)
+                    // const tableDataMap = processTableData();
+                    message.success("数据获取成功,渲染完毕");
+                    // setTableData(tableDataMap);
                     setData(dataMap);
                 }
         }).catch(function(response){
@@ -198,6 +265,31 @@ export default function ViewFrequent(){
             setTableData(tableSampleData);
             message.error("数据获取失败,使用默认数据");
         })
+     }
+
+     const processTableData = (email)=>{
+        const tableData = originData.current.filter((item)=>item.email===email)[0];
+        if(tableData.length==0){
+            return []
+        }else{
+            const takenFlights = tableData.takenFlights;
+        const tableDataMap = takenFlights.map((item)=>{
+            return ({
+                key:[item.flightNum,item.airlineName],
+                flight_id:item.flightNum,
+                airline:item.airlineName,
+                dept_time:item.departureTime,
+                arri_time:item.arrivalTime,
+                dept:item.sourceAirportName,
+                arri:item.destAirportName,
+                price:item.price,
+                status:[item.status]
+            })
+        }
+        )
+        return tableDataMap;
+    }
+        
      }
 
      const processData = (value,past)=>{
@@ -208,29 +300,28 @@ export default function ViewFrequent(){
             )
         return dataMap;
      }
-     const handleChangeTime = (value)=>{
-        console.log(value);
-        const dataMap = processData(value);
-        setData(dataMap);
-     }
+    //  const handleChangeTime = (value)=>{
+    //     console.log(value);
+    //     const dataMap = processData(value);
+    //     setData(dataMap);
+    //  }
 
-     const renderLastYear = ()=>{
+    //  const renderLastYear = ()=>{
         
-    }
+    // }
 
-    const renderLastMonth = ()=>{
+    // const renderLastMonth = ()=>{
 
-
-    }
+    // }
 
     const renderTabExtra = ()=>{
 
 
       return (
           <Space direction="horizontal" size={10}>
-          <Button onClick={renderLastYear} type={"primary"}>Last Year</Button>
-          <Button onClick={renderLastMonth} type={"primary"}>Last Month</Button>
-          <RangePicker picker="day" onChange={handleChangeTime}></RangePicker>
+          {/* <Button onClick={renderLastYear} type={"primary"}>Last Year</Button>
+          <Button onClick={renderLastMonth} type={"primary"}>Last Month</Button> */}
+          {/* <RangePicker picker="day" onChange={handleChangeTime}></RangePicker> */}
           <>
           <span style={{marginRight:2}}>Top</span>
             <InputNumber min={1} onChange={onNumberChange} defaultValue={5}></InputNumber>
@@ -254,13 +345,25 @@ export default function ViewFrequent(){
              enable: false,
            },
          ],
+         meta:{
+             type:{
+                 alias: 'Customer Email'
+             },
+             tickets:{
+                 alias: 'Number of Tickets Bought'
+             }
+         }
         };
        
 
 
     // 编写图例点击事件
     const handleClick =(event)=>{
+        console.log(event);
+        const tableDataMap = processTableData(event.data.data.customer);
+        // console.log(tableDataMap);
         setTableData(tableSampleData);
+        setTableData(tableDataMap);
         setModalEmail(event.data.data.customer);
         setModalVisibility(true);
 
@@ -287,9 +390,10 @@ export default function ViewFrequent(){
         />
         <Modal
         destroyOnClose
-        title={"Flight details with "+ modalEmail}
+        title={"Flight Taken with "+ modalEmail}
         visible={modalVisiblibity}
-        onCancel={handleCancel}>
+        onCancel={handleCancel}
+        width={900}>
             <Card >
                 <Table columns={tableColumns} dataSource={tableData} size={"middle"}>
 

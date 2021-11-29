@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Input, Card, Button,Form,Select} from "antd";
+import {Input, Card, Button,Form,Select,message} from "antd";
 import axios from "axios";
 import {useNavigate} from "react-router-dom"
 import moment from "moment";
@@ -30,14 +30,41 @@ export default function AddAgents() {
         })
     }
 
+
     const handleChange = (value)=>{
         setEmail(value);
         console.log("changed");
     }
 
 
-    const onFinish =()=>{
-
+    const onFinish =(values)=>{
+      axios.post("http://localhost:8080/airlineStaff/addBookingAgent",
+      qs.stringify({...values,airlineName:"Spring Airlines"})).then(function(response){
+        if(response.data){
+          if(response.data.success===true){
+            message.success("Addition Succeeded!")
+          }else{
+            const responseMapping = response.data;
+            if(responseMapping){
+              if(responseMapping.emailValid===false){
+                form.setFields([
+                  {
+                      name:"email",
+                      errors:[ "BookingAgent Not Found!"]
+                  }
+              ])
+              }else if(responseMapping.workingValid===false){
+                form.setFields([
+                  {
+                      name:"email",
+                      errors:[ "BookingAgent has already been assigned this airline!"]
+                  }
+              ])
+            }
+          }
+        }
+      }
+    })
     }
 
     const options = searchResult.map((item,index)=>(<Option key={index}>{item}</Option>));
@@ -84,22 +111,17 @@ export default function AddAgents() {
                 name="Add Agents"
                 onFinish={onFinish}
                  scrollToFirstError>
-                <Form.Item name="email" label="Agent Email">
-                    <Select
-                        showSearch
-                        style={{width: 300, padding: 10}}
-                        placeholder={"Email"}
-                        value={email}
-                        defaultActiveFirstOption={false}
-                        showArrow={false}
-                        filterOption={false}
-                        onSearch={handleSearch}
-                        onChange={handleChange}
-                        notFoundContent={null}
-                        allowClear
-                    >
-                        {options}
-                    </Select>
+                <Form.Item name="email" 
+                label="Agent Email"
+                rules={[
+                  {
+                    type:"email",
+                    message:"Please input the right format of an email"
+                  },
+                  
+                  ]}
+                hasFeedback>
+                    <Input style={{width:'80%'}}/>
                 </Form.Item>
 
 

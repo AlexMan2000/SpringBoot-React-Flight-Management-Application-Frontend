@@ -1,21 +1,28 @@
-import {Card, Form, Input, Button,Table,DatePicker,Space,message} from 'antd';
+import {Card, Form, Input, Button,Table,DatePicker,Space,message,Statistic} from 'antd';
 import { Column } from '@ant-design/charts';
-import React, {useState,useEffect} from "react";
+import React, {useState,useEffect,useRef} from "react";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import { SettingOutlined } from '@ant-design/icons';
+import moment from "moment";
+
 
 export default function ViewReports(){
     const [data,setData]=useState([]);
-    const [startDate,setStartDate]=useState(undefined);
-    const [endDate,setEndDate] = useState(undefined);
+    const [totalSales,setTotalSales] = useState(undefined);
+    const past = useRef("year");
+
+    const originalData = useRef([]);
+
+    const loadingHolder= Boolean(totalSales);
+
 
     const {RangePicker} = DatePicker;
     
     useEffect(()=>{
       // setData(sampleData);
-      getData();
+      getData("Spring Airlines",null,null);
     },[]);
 
     const tabList = [
@@ -23,26 +30,38 @@ export default function ViewReports(){
     ]
 
 
-    const getData = (airlineName)=>{
+    const getData = (airlineName,startDate,endDate)=>{
+      console.log(startDate);
+      console.log(endDate);
       axios.get("http://localhost:8080/airlineStaff/viewReports",
       {
         params:{
-          airlineName:"Spring Airlines"
+          airlineName:"Spring Airlines",
+          startDate:startDate?new Date(startDate):null,
+          endDate:endDate?new Date(endDate):null
         }
       }).then(function(response){
           message.success("数据加载成功");
           console.log(response.data);
-          // const dataMap = response.data.map((item)=>({type:item.type,value:item.value}))
-          // const totalSales = dataMap.reduce(getSum,0);//这个零是初始化为零开始累加的意思
-          // console.log(dataMap);
-          // setData(dataMap);
-          // setTotalSales(totalSales)
+          const dataMap = response.data.map((item)=>({type:item.interval,sales:item.value}))
+          const totalSales = dataMap.reduce(getSum,0);//这个零是初始化为零开始累加的意思
+          console.log(totalSales);
+          originalData.current = dataMap;
+          setData(dataMap);
+          setTotalSales(totalSales)
+          
 
       }).catch(function(){
           message.error("访问超时，使用默认数据");
-
+          originalData.current = sampleData;
+          setData(sampleData);
       })
     }
+
+    const getSum = (total,num)=>{
+      return total+num.sales;
+    }
+
 
     var sampleData = [
         {
@@ -103,11 +122,22 @@ export default function ViewReports(){
 
 
       const renderLastYear = ()=>{
-
-      }
+        const dataMap = originalData.current;
+        const totalSales = dataMap.reduce(getSum,0);//这个零是初始化为零开始累加的意思
+          setData(dataMap);
+          setTotalSales(totalSales);  
+               
+        }
 
       const renderLastMonth = ()=>{
+        const dataMap = originalData.current.slice(-1);
+        setData(dataMap);
+        setTotalSales(dataMap.sales);
+      }
 
+      const renderRange = (value)=>{
+          if(value!=null){
+          getData("",value[0],value[1]);}
 
       }
 
@@ -118,7 +148,7 @@ export default function ViewReports(){
             <Space direction="horizontal" size={12}>
             <Button onClick={renderLastYear} type={"primary"}>Last Year</Button>
             <Button onClick={renderLastMonth} type={"primary"}>Last Month</Button>
-            <RangePicker picker="month"></RangePicker></Space>
+            <RangePicker picker="month" onChange={renderRange}></RangePicker></Space>
         )
       }
 
@@ -130,5 +160,10 @@ export default function ViewReports(){
       hoverable={true}
       tabBarExtraContent={renderTabExtra()}
       >
+      <Statistic title={"Total Number of sold tickets over the last "+past.current}
+                        value={totalSales}
+                        // loading={!loadingHolder}
+                        precision={2}
+                        style={{width: '100%'}}></Statistic>
       <Column {...config} /></Card>);
 }

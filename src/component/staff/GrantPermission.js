@@ -85,19 +85,8 @@ export default function GrantPermission(){
                 name="Add Agents"
                 onFinish={onFinish}
                  scrollToFirstError>
-        <Form.Item name="email" label="Agent Email">
-            <Select showSearch
-                style={{width: 300, padding: 10}}
-                placeholder={"Email"}
-                value={email}
-                defaultActiveFirstOption={false}
-                showArrow={false}
-                filterOption={false}
-                onSearch={handleSearch}
-                onChange={handleChange}
-                notFoundContent={null}
-                allowClear>
-            </Select>
+        <Form.Item name="email" label="Staff UserName">
+            <Input/>
 
         </Form.Item>
 

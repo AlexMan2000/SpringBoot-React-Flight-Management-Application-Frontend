@@ -39,7 +39,8 @@ export default function RevenueComparison(){
 
       }).catch(function(){
           message.error("访问超时，使用默认数据");
-
+          console.log(sampleData);
+          setData(sampleData);
       })
 
     }
