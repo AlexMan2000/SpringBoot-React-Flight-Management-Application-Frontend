@@ -8,13 +8,13 @@ import {v4 as uuidv4} from "uuid";
 import ProTable from '@ant-design/pro-table';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import {PlusOutlined,DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import {Button, Space, Tag,Popconfirm, message} from "antd";
+import {Button, Space, Tag,Popconfirm, message,Tooltip} from "antd";
 import { statusColor } from "../../lib/statusTag";
 import CreateForm from "./CRUDElements/CreateForm";
 import UpdateForm from "./CRUDElements/UpdateForm";
 import DetailsTable from "./CRUDElements/DetailsForm";
 
-export default function FlightCRUD(){
+export default function FlightCRUD({loginInfo}){
 
     //控制添加Modal的可视
     const [createModalVisible,handleCreateModalVisible] = useState(false);
@@ -33,7 +33,13 @@ export default function FlightCRUD(){
     //全局变量，用于控制是否加载默认数据
     const defaultRef = useRef(true);
 
-    console.log(defaultRef);
+    console.log(loginInfo);//默认
+
+    const defaultLoginInfo = {
+      permission:["Admin","Operator"]
+    }
+
+    console.log(defaultLoginInfo.permission.includes("Admin"));
     
     //异步方法提交数据, 注意这里返回一个异步函数
     const fetchFlightData = async (query)=>{
@@ -85,7 +91,7 @@ export default function FlightCRUD(){
           destAirportName:"SZX",
           arrivalTime:moment("2020-01-01").format("YYYY-MM-DD HH:mm:ss"),
           price:3030,
-          status:"upcoming",
+          status:"on time",
           airplaneId:"MU888"
         },
         {
@@ -96,7 +102,7 @@ export default function FlightCRUD(){
           destAirportName:"SZX",
           arrivalTime:moment("2020-01-01").format("YYYY-MM-DD HH:mm:ss"),
           price:3030,
-          status:"upcoming",
+          status:"on time",
           airplaneId:"MU888"
         },
         {
@@ -107,7 +113,7 @@ export default function FlightCRUD(){
           destAirportName:"SZX",
           arrivalTime:moment("2020-01-01").format("YYYY-MM-DD HH:mm:ss"),
           price:3030,
-          status:"upcoming",
+          status:"on time",
           airplaneId:"MU888"
         },
         
@@ -284,16 +290,18 @@ export default function FlightCRUD(){
             fixed:"right",
             render: (text, record) => (
                 <Space size="middle">
+                
                 <Button onClick={()=>{
                   handleDetailModalVisible(true);
                   setStepFormValues(record);
                 }}>Details</Button>
-                <Button onClick={()=>{
+                 <Tooltip title={defaultLoginInfo.permission.includes("Operator")?undefined:"Insufficient Privileges!"} color={"orange"}>
+                <Button disabled={defaultLoginInfo.permission.includes("Operator")?false:true} onClick={()=>{
                     handleUpdateModalVisible(true);
                     setStepFormValues(record);
                 }} type={'primary'} size={'small'} >
                   <EditOutlined style={{fontSize: '15px'}} />
-                </Button>
+                </Button></Tooltip>
                 <Popconfirm
                      title="Are you sure to delete this row?"
                     onConfirm={(e)=>{confirm(e,record);}}
@@ -301,10 +309,11 @@ export default function FlightCRUD(){
                     okText="Yes"
                     cancelText="No"
                 >
-                <Button onClick={()=>{
+                 <Tooltip title={defaultLoginInfo.permission.includes("Operator")?undefined:"Insufficient Privileges!"} color={"orange"}>
+                <Button disabled={defaultLoginInfo.permission.includes("Operator")?false:true} onClick={()=>{
                 }} type={'primary'} size={'small'} danger >
                   <DeleteOutlined style={{fontSize: '15px'}} />
-                </Button></Popconfirm>
+                </Button></Tooltip></Popconfirm>
               </Space>
         
             )
@@ -370,13 +379,14 @@ export default function FlightCRUD(){
                 onchange:(_,selectedRows)=>setSelectedRows(selectedRows),
             }}
             toolBarRender={() => [
-            <Button key="3" type="primary" onClick={()=>{
+              <Tooltip title={defaultLoginInfo.permission.includes("Admin")?undefined:"Insufficient Privileges!"} color={"orange"}>
+            <Button key="3" type="primary" disabled={defaultLoginInfo.permission.includes("Admin")?false:true} onClick={()=>{
                 handleCreateModalVisible(true);
 
             }}>
                 <PlusOutlined />
                 Add Flight
-            </Button>,
+            </Button></Tooltip>,
         ]}
         />
 
@@ -384,7 +394,7 @@ export default function FlightCRUD(){
         <FooterToolbar
           extra={
             <div>
-              已选择 <a style={{ fontWeight: 600 }}>{selectedRows.length}</a> 项&nbsp;&nbsp;
+               <a style={{ fontWeight: 600 }}>{selectedRows.length}</a> items choosed &nbsp;&nbsp;
             </div>
           }
         >

@@ -16,7 +16,7 @@ export default function ViewFrequent(){
      const [activeTab,setActiveTab] = useState("sales");
      const [topK,setTopK] = useState(10);
      const [data,setData]=useState([]);
-     const originData = useRef([]);
+     const originData = useRef(null);
      const [modalVisiblibity,setModalVisibility] = useState(false);
      const [modalEmail,setModalEmail] = useState("");
      const [tableData,setTableData] = useState([]);
@@ -268,6 +268,9 @@ export default function ViewFrequent(){
      }
 
      const processTableData = (email)=>{
+         if(originData.current===null){
+             return tableSampleData;
+         }
         const tableData = originData.current.filter((item)=>item.email===email)[0];
         if(tableData.length==0){
             return []
@@ -362,7 +365,7 @@ export default function ViewFrequent(){
         console.log(event);
         const tableDataMap = processTableData(event.data.data.customer);
         // console.log(tableDataMap);
-        setTableData(tableSampleData);
+        // setTableData(tableSampleData);
         setTableData(tableDataMap);
         setModalEmail(event.data.data.customer);
         setModalVisibility(true);

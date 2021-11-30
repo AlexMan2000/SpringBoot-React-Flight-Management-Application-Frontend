@@ -6,7 +6,7 @@ import axios from "axios";
 
 export default function LoginCard(props) {
 
-    const {setInitializeType,setRegisterModalVisible,setLoginModalVisible} = props;
+    const {loginInfo,setInitializeType,setRegisterModalVisible,setNavigateBar,setLoginModalVisible} = props;
     let navigate = useNavigate();
 
     const [form] = Form.useForm();
@@ -29,32 +29,43 @@ export default function LoginCard(props) {
             data:{userType:activeTab,...values}
         }).then(function(response){
             const response_msg = response.data;
-            if(response_msg==="success"){
-                //登录成功,后台session中有用户信息
+            if(response_msg.status===true){
+                //登录成功,后台session中有用户信息,用于免登录
+                //前端保存用户的权限和基本信息
+                // console.log(response_msg);
+                if(activeTab==="customer"){
+                    loginInfo.current = response_msg.customer;
+                }else if(activeTab==="staff"){
+                    loginInfo.current = response_msg.airlineStaff;
+                }else if(activeTab==="agent"){
+                    loginInfo.current = response_msg.bookingAgent;
+                }
+                setNavigateBar(activeTab);
                 setLoginModalVisible(false);
-                
                 navigate("/"+activeTab,{replace:true});
+                
             }else{
                 //诊断失败原因
-                if(response_msg==="User Not Found!"){
+                // console.log(response.data);
+                if(response_msg.statusCode===1){
                     form.setFields([
                         {
                             name:activeTab==="customer"?"email":"username",
                             errors:[ "User Not Found! Please Register First!"]
                         }
                     ])
-                }else if(response_msg==="Password Error!"){
+                }else if(response_msg.statusCode===2){
                     form.setFields([
                         {
                             name:"password",
-                            errors:[response.data]
+                            errors:["Password Error!"]
                         }
                     ])
-                }else if(response_msg==="BookingId Error!"){
+                }else if(response_msg.statusCode===3){
                     form.setFields([
                         {
                             name:"bookingAgentId",
-                            errors:[response.data]
+                            errors:["BookingId Error!"]
                         }
                     ])
                 }
@@ -137,8 +148,10 @@ export default function LoginCard(props) {
                 
                 <Form.Item
                     name="password"
-                    rules={[{required: true, message: "Please input your password"}]}>
-                    <Input
+                    rules={[{required: true, message: "Please input your password"}]}
+                    dependencies={['password']}
+                    >
+                    <Input.Password
                         prefix={<LockOutlined className="site-form-item-icon" />}
                         type="password"
                         placeholder="Password" />

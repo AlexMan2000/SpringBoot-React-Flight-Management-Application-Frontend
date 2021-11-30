@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom";
 
 const {SubMenu} = Menu;
 
-export default function AgentSidebar({updateSelection,defaultData,setActionType,setFlightResult}) {
+export default function AgentSidebar({loginInfo,updateSelection,defaultData,setActionType,setFlightResult}) {
     const tagList = {
         "1": "Search flights",
         "2": "Create order",
@@ -25,6 +25,7 @@ export default function AgentSidebar({updateSelection,defaultData,setActionType,
     const handleSidebarClick = (item) => {
         if (tagList[item.key] == "Logout") {
             // clear local account information
+            loginInfo.current = null;
             navigate("/", {replace: true})
         }
         updateSelection(tagList[item.key]);

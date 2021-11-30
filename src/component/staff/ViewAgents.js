@@ -1,4 +1,4 @@
-import {Card, Form, Input, Button,Table,InputNumber,Space,Spin} from 'antd';
+import {Card, Form, Input, Button,Table,InputNumber,Space,Spin,message} from 'antd';
 import {Bar} from "@ant-design/charts";
 import React, {useState,useEffect} from "react";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
@@ -87,7 +87,8 @@ export default function ViewAgents(){
                 setData(dataMap);
             }
         }).catch(function(response){
-            setData(topSalesData);
+            message.error("请求超时,加载默认数据");
+            setData(topSalesData);  
         })
     }
 

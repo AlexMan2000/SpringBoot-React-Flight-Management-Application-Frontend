@@ -455,7 +455,7 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
                 style={{width: '50vw'}}
             />
             <b style={{padding: 10}}> </b>
-            <Button type={"primary"} onClick={handleExactSearch}>Exact Searching</Button></div>)}
+        </div>)}
             <Divider />
             {flightsResult ? <FlightsResultTable data={flightsResult}  userType={userType} actionType={actionType} setRowRecord={setRowRecord} setAgentModalVis={setAgentModalVis} setCustomerModalVis={setCustomerModalVis}/> : null}
             

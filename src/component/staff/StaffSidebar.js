@@ -1,11 +1,11 @@
 import {CarryOutOutlined, FundViewOutlined, SendOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
-import {Menu} from "antd";
+import {Menu,Tooltip} from "antd";
 import React, {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 
 const {SubMenu} = Menu;
 
-export default function StaffSidebar({updateSelection}) {
+export default function StaffSidebar({ loginInfo,updateSelection}) {
     const tagList = {
         // Flight Management
         "2": "Flight CRUD",
@@ -25,9 +25,15 @@ export default function StaffSidebar({updateSelection}) {
     }
     const navigate = useNavigate();
 
+    const defaultLoginInfo={
+        permission:["Admin","Operator"]
+    }
+
     const handleSidebarClick = (item) => {
         if (tagList[item.key] == "Logout") {
             // clear local account information
+            loginInfo.current = null;
+            
             navigate("/", {replace: true})
         }
         updateSelection(tagList[item.key])
@@ -47,8 +53,13 @@ export default function StaffSidebar({updateSelection}) {
         >
             <SubMenu key="sub1" icon={<SendOutlined />} title="Flight Management">
                 <Menu.Item key="2">{tagList['2']}</Menu.Item>
-                <Menu.Item key="4">{tagList['4']}</Menu.Item>
-                <Menu.Item key="5" disabled={false}>{tagList['5']}</Menu.Item>
+                
+                <Menu.Item key="4" disabled={defaultLoginInfo.permission.includes("Admin")?false:true}>
+                <Tooltip title={defaultLoginInfo.permission.includes("Admin")?undefined:"Insufficient Privileges!"} color={"orange"}>{tagList['4']}
+                </Tooltip></Menu.Item>
+                <Menu.Item key="5" disabled={defaultLoginInfo.permission.includes("Admin")?false:true}>
+                <Tooltip title={defaultLoginInfo.permission.includes("Admin")?undefined:"Insufficient Privileges!"} color={"orange"}>{tagList['5']}
+                </Tooltip></Menu.Item>
             </SubMenu>
             <SubMenu key="sub2" icon={<FundViewOutlined />} title="Statistics">
                 <Menu.Item key="3">{tagList['3']}</Menu.Item>
@@ -58,8 +69,12 @@ export default function StaffSidebar({updateSelection}) {
                 <Menu.Item key="9">{tagList['9']}</Menu.Item>
             </SubMenu>
             <SubMenu key="sub3" icon={<SettingOutlined />} title="Operation">
-                <Menu.Item key="10">{tagList['10']}</Menu.Item>
-                <Menu.Item key="11">{tagList['11']}</Menu.Item>
+                <Menu.Item key="10" disabled={defaultLoginInfo.permission.includes("Admin")?false:true}>
+                <Tooltip title={defaultLoginInfo.permission.includes("Admin")?undefined:"Insufficient Privileges!"} color={"orange"}>{tagList['10']}
+                </Tooltip></Menu.Item>
+                <Menu.Item key="11" disabled={defaultLoginInfo.permission.includes("Admin")?false:true}>
+                <Tooltip title={defaultLoginInfo.permission.includes("Admin")?undefined:"Insufficient Privileges!"} color={"orange"}>{tagList['11']}
+                </Tooltip></Menu.Item>
                 <Menu.Item key="12">{tagList['12']}</Menu.Item>
             </SubMenu>
         </Menu>

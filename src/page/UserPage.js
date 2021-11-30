@@ -1,5 +1,5 @@
 import React, {useEffect, useState,useRef} from "react"
-import {Layout, Menu, Breadcrumb,Dropdown,Avatar,Button,Space,Modal} from "antd";
+import {Layout, Menu, Breadcrumb,Dropdown,Avatar,Button,Space,Modal,List} from "antd";
 import {CarryOutOutlined, SendOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import CustomerSidebar from "../component/customer/CustomerSidebar";
@@ -39,14 +39,18 @@ export default function UserPage({initializingTab}) {
     const [flightsResult, setFlightResult] = useState(null);
     const [actionType,setActionType] = useState("");
     const [loginModalVisible,setLoginModalVisible] = useState(false);
+    const [infoModalVisible,setInfoModalVisible] = useState(false);
     const [registerModalVisible,setRegisterModalVisible] = useState(false);
     const [initializeType,setInitializeType] = useState("customer");
     const defaultData = useRef(null);
     // 在全局记录用户的登录信息(简单实现)
     const loginInfo = useRef(null);
 
+    const defaultLoginInfo = {userName:"haha"};
+    // const defaultLoginInfo = null;
+    
     useEffect(()=>{
-        console.log("xixi");
+        setNavigateBar(initializingTab)
         axios({
             url:"http://localhost:8080/index/findAllFlights",
             method:"GET",
@@ -69,15 +73,15 @@ export default function UserPage({initializingTab}) {
     }
 
     const sidebarList = {
-        customer: <CustomerSidebar updateSelection={setSidebar} setActionType={setActionType} defaultData={defaultData} setFlightResult={setFlightResult} />,
-        agent: <AgentSidebar updateSelection={setSidebar} setActionType={setActionType} defaultData={defaultData} setFlightResult={setFlightResult}/>,
-        staff: <StaffSidebar updateSelection={setSidebar} setActionType={setActionType}  setFlightResult={setFlightResult}/>,
-        global: <GlobalSidebar updateSelection={setSidebar} setActionType={setActionType}  setFlightResult={setFlightResult}/>,
+        customer: <CustomerSidebar loginInfo={loginInfo} updateSelection={setSidebar} setActionType={setActionType} defaultData={defaultData} setFlightResult={setFlightResult} />,
+        agent: <AgentSidebar loginInfo={loginInfo} updateSelection={setSidebar} setActionType={setActionType} defaultData={defaultData} setFlightResult={setFlightResult}/>,
+        staff: <StaffSidebar loginInfo={loginInfo} updateSelection={setSidebar} setActionType={setActionType}  setFlightResult={setFlightResult}/>,
+        global: <GlobalSidebar loginInfo={loginInfo} updateSelection={setSidebar} setActionType={setActionType}  setFlightResult={setFlightResult}/>,
     }
 
 
     const userContent = {
-        "Flight CRUD":<FlightCRUD/>,
+        "Flight CRUD":<FlightCRUD loginInfo={loginInfo}/>,
         "My flights": <SearchFlights userType={initializingTab} actionTab={"view"} 
                                     flightsResult={flightsResult} 
                                     setFlightResult={setFlightResult} 
@@ -109,25 +113,25 @@ export default function UserPage({initializingTab}) {
                                             setFlightResult={setFlightResult} 
                                             actionType={actionType}/>,
         "Commission statistics": <CommissionStatistics />,
-        "Add airport": <EditAirport />,
-        "Add airplane": <EditAirplane/>,
-        "Add booking agent":<AddAgents/>,
+        "Add airport": <EditAirport loginInfo={loginInfo}/>,
+        "Add airplane": <EditAirplane loginInfo={loginInfo}/>,
+        "Add booking agent":<AddAgents loginInfo={loginInfo}/>,
         "View Agents":<ViewAgents />,
         "View Reports":<ViewReports/>,
         "Top destinations":<TopDestinations/>,
         "Revenue Comparison":<RevenueComparison/>,
         "Frequent customers":<ViewFrequent/>,
-        "Grant permission":<GrantPermission/>
+        "Grant permission":<GrantPermission loginInfo={loginInfo}/>
     }
 
-    useEffect(() => {
-        setNavigateBar(initializingTab)
-    }, [])
-
-
     const menu = (<Menu>
+        {!defaultLoginInfo&&(
         <Menu.Item icon={<SettingOutlined />}>
           <a onClick={()=>{setLoginModalVisible(true);}}>Log In</a>
+          
+        </Menu.Item>)}
+        <Menu.Item icon={<UserOutlined/>}>
+        <a onClick={()=>{setInfoModalVisible(true)}}>Account Information</a>
         </Menu.Item>
       </Menu>);
 
@@ -138,9 +142,95 @@ export default function UserPage({initializingTab}) {
     const onCancelRegister =()=>{
         setRegisterModalVisible(false);
     }
+
+    const onCancelInfo = ()=>{
+        setInfoModalVisible(false);
+    }
+
+
+    const customerList=[
+        {
+            title:"Email",
+            description:loginInfo.current?loginInfo.current.email:""
+        },
+        {
+            title:"Name",
+            description:loginInfo.current?loginInfo.current.name:""
+        }
+    ]
+
+    const AgentList=[
+        {
+            title:"Email",
+            description:loginInfo.current?loginInfo.current.email:""
+        },
+        {
+            title:"Your Id",
+            description:loginInfo.current?loginInfo.current.bookingAgentId:""
+        }
+    ]
+
+
+    const staffList=[
+        {
+            title:"User Name",
+            description:loginInfo.current?loginInfo.current.username:""
+        },
+        {
+            title:"First Name",
+            description:loginInfo.current?loginInfo.current.firstName:"",
+        },
+        {
+            title:"Last Name",
+            description:loginInfo.current?loginInfo.current.lastName:"",
+        },
+        {
+            title:"Permission Level",
+            description:loginInfo.current?loginInfo.current.permissionDescription.join(", "):""
+        }
+    ]
+
+   
+    const sampleInfoData = [
+        {
+            title:"User Name",
+            description:"HaHaHa"
+        },
+        {
+            title:"Airline",
+            description:"Spring Airlines"
+        },
+        {
+            title:"Permission Level",
+            description: ["Admin","Operator"].join(", ")
+        },
+
+    ]
+
     return (
 
         <Layout>
+            <Modal 
+                destroyOnClose
+                title="Account Information"
+                visible={infoModalVisible}
+                onCancel={() => {onCancelInfo()}}
+                footer={[]}>
+                    <List 
+                    itemtlayout = {"horizontal"}
+                    dataSource={navigateBar==="customer"?customerList:navigateBar==="staff"?staffList:AgentList}
+                    renderItem={item=>
+                    (<List.Item
+                        >
+                        <List.Item.Meta
+                        title={item.title}
+                        description={item.description}>
+
+                        </List.Item.Meta>
+                    </List.Item>)}>
+                    </List>
+
+                </Modal>
             {<Modal 
                 destroyOnClose
                 title="Login"
@@ -148,7 +238,7 @@ export default function UserPage({initializingTab}) {
                 onCancel={() => {onCancelLogin()}}
                 footer={[]}
                 >
-                <LoginCard setInitializeType={setInitializeType}  setLoginModalVisible={setLoginModalVisible} setRegisterModalVisible={setRegisterModalVisible}/>
+                <LoginCard loginInfo={loginInfo} setInitializeType={setInitializeType}  setLoginModalVisible={setLoginModalVisible} setNavigateBar={setNavigateBar} setRegisterModalVisible={setRegisterModalVisible}/>
             </Modal>}
             {<Modal 
                 destroyOnClose
@@ -178,7 +268,14 @@ export default function UserPage({initializingTab}) {
                 
             </Header>
             <Dropdown overlay={menu}>
-                    <Avatar style={{marginLeft:"1200px",zIndex:3,position: 'fixed',top:"10px"}} size="large" icon={<UserOutlined />}/>
+                    {
+                    defaultLoginInfo?<Avatar style={{marginLeft:"1200px",zIndex:3,position: 'fixed',top:"10px"}} size="large"  
+                    // src={"https://joeschmoe.io/api/v1/"+defaultLoginInfo.userName} 
+                    // style={{ color: '#f56a00', backgroundColor: '#fde3cf',size:"middle" }}
+                    backgroundColor={"green"}
+                    >
+                    {defaultLoginInfo.userName[0].toUpperCase()}</Avatar>:
+                    <Avatar style={{marginLeft:"1200px",zIndex:3,position: 'fixed',top:"10px"}} size="large" icon={<UserOutlined />}></Avatar>}
                 </Dropdown>
             <Layout style={{minHeight: '100vh', marginTop: 64}}>
                 <Sider width={250} height={100} className="site-layout-background" collapsible collapsed={collapsed} onCollapse={setCollapsed}>

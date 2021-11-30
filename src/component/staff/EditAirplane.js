@@ -4,7 +4,7 @@ import qs from "qs";
 import moment from "moment";
 import axios from "axios";
 
-export default function EditAirport() {
+export default function EditAirport({loginInfo}) {
 
     const onFinish =(values)=>{
       console.log(values);

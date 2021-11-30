@@ -10,7 +10,7 @@ const {Search} = Input;
 
 const {Option} = Select;
 
-export default function AddAgents() {
+export default function AddAgents({loginInfo}) {
 
     const [email,setEmail] = useState(undefined);
     const [searchResult,setSearchResult] = useState([]);
@@ -114,6 +114,10 @@ export default function AddAgents() {
                 <Form.Item name="email" 
                 label="Agent Email"
                 rules={[
+                  {
+                    required: true,
+                    message:"Please don't leave blank the agent information!"
+                  },
                   {
                     type:"email",
                     message:"Please input the right format of an email"

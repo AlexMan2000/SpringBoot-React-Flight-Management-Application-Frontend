@@ -1,31 +1,75 @@
 import React, {useState} from "react";
-import {Input, Card, Button,Form,Select} from "antd";
+import {Input, Card, Button,Form,Select,Checkbox,message} from "antd";
 import axios from "axios";
 import {useNavigate} from "react-router-dom"
 import moment from "moment";
 import qs from "qs";
 
 
-const {Search} = Input;
+const CheckboxGroup = Checkbox.Group;
 
-const {Option} = Select;
+const options = ["Admin","Operator"];
 
-export default function GrantPermission(){
+const defaultCheckedList = ["Admin"];
+export default function GrantPermission({loginInfo}){
 
-    const [searchResult,setSearchResult] = useState([]);
-    const [email,setEmail] = useState();
+    const [checkedList, setCheckedList] = React.useState(defaultCheckedList);
 
     const [form] = Form.useForm();
 
-    const options = ["Admin","Operator"];
-    
-    const optionsMapped = options.map((item,index)=><Option key={index}>{item}</Option>)
+    console.log(checkedList);
 
 
     const onFinish=(values)=>{
+      form.setFields([
+        {
+            name:"username",
+            errors:[]
+        }
+      ]);
+      form.setFields([
+        {
+            name:"permission",
+            errors:[]
+        }
+      ]);
         //提交请求
         console.log("papa");
+        axios(
+          {url:"http://localhost:8080/airlineStaff/grantPermission",
+           method:"POST",
+           data:{
+            userName:values.username,
+            airlineName:"Cathay Pacific",
+            permission:checkedList
+          }
+        }).then(function(response){
+          if(response.data){
+            console.log(response.data);
+            if(response.data.success===true){
+              console.log("haha");
+                message.success("Success");
+            }else{
+              const errorMapping = response.data;
+              if(errorMapping.nameValid===false){
+                form.setFields([
+                  {
+                      name:"username",
+                      errors:[ "AirlineStaff Not Found!"]
+                  }
+              ])
+              }else if(errorMapping.permissionValid===false){
+                form.setFields([
+                  {
+                      name:"permission",
+                      errors:[ "The airlineStaff already has the permission!"]
+                  }
+              ])
+              }
+            }
 
+          }
+        })
     }
 
     const onFinishFailed = ()=>{
@@ -33,15 +77,8 @@ export default function GrantPermission(){
     }
 
 
-
-    const handleSearch = ()=>{
-
-
-    }
-
-
-    const handleChange = ()=>{
-
+    const handleChange = (list)=>{
+      setCheckedList(list);
     }
 
 
@@ -85,22 +122,19 @@ export default function GrantPermission(){
                 name="Add Agents"
                 onFinish={onFinish}
                  scrollToFirstError>
-        <Form.Item name="email" label="Staff UserName">
+        <Form.Item name="username" label="Staff UserName"
+          rules={[
+            {
+              required:true,
+              message:"Please input the username!"
+            }
+          ]}>
             <Input/>
 
         </Form.Item>
 
         <Form.Item name="permission" label="Permission Type">
-        <Select
-            showSearch
-                style={{width: 300, padding: 10}}
-                placeholder={"Permission Type"}
-                defaultActiveFirstOption={false}
-                showArrow={false}
-                filterOption={false}
-                allowClear>
-                {optionsMapped}
-            </Select>
+        <CheckboxGroup options={options} value={defaultCheckedList} onChange={handleChange} />
         </Form.Item>
 
         <Form.Item {...tailFormItemLayout}> 
