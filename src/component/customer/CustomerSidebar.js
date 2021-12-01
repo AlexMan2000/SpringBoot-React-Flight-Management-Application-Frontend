@@ -2,7 +2,7 @@ import {CarryOutOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons
 import {Menu} from "antd";
 import React, {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
-
+import cookie from 'react-cookies'
 const {SubMenu} = Menu;
 
 export default function CustomerSidebar({loginInfo,updateSelection,defaultData,setActionType,setFlightResult}) {
@@ -25,6 +25,7 @@ export default function CustomerSidebar({loginInfo,updateSelection,defaultData,s
         if (tagList[item.key] == "Logout") {
             // clear local account information
             loginInfo.current = null;
+            cookie.remove("JSESSIONID");
             navigate("/", {replace: true});
         }
         updateSelection(tagList[item.key]);

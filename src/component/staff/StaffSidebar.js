@@ -2,6 +2,7 @@ import {CarryOutOutlined, FundViewOutlined, SendOutlined, SettingOutlined, UserO
 import {Menu,Tooltip} from "antd";
 import React, {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
+import cookie from 'react-cookies'
 
 const {SubMenu} = Menu;
 
@@ -25,14 +26,23 @@ export default function StaffSidebar({ loginInfo,updateSelection}) {
     }
     const navigate = useNavigate();
 
-    const defaultLoginInfo={
-        permission:["Admin","Operator"]
+    // const defaultLoginInfo={
+    //     permission:["Admin","Operator"]
+    // }
+
+    console.log(loginInfo.current);
+
+    const handleLogout = ()=>{
+
     }
 
     const handleSidebarClick = (item) => {
         if (tagList[item.key] == "Logout") {
             // clear local account information
+
+            
             loginInfo.current = null;
+            cookie.remove("JSESSIONID");
             
             navigate("/", {replace: true})
         }
@@ -54,11 +64,11 @@ export default function StaffSidebar({ loginInfo,updateSelection}) {
             <SubMenu key="sub1" icon={<SendOutlined />} title="Flight Management">
                 <Menu.Item key="2">{tagList['2']}</Menu.Item>
                 
-                <Menu.Item key="4" disabled={defaultLoginInfo.permission.includes("Admin")?false:true}>
-                <Tooltip title={defaultLoginInfo.permission.includes("Admin")?undefined:"Insufficient Privileges!"} color={"orange"}>{tagList['4']}
+                <Menu.Item key="4" disabled={loginInfo.current?loginInfo.current.permissionDescription.includes("Admin")?false:true:false}>
+                <Tooltip title={loginInfo.current?loginInfo.current.permissionDescription.includes("Admin")?undefined:"Insufficient Privileges!":undefined} color={"orange"}>{tagList['4']}
                 </Tooltip></Menu.Item>
-                <Menu.Item key="5" disabled={defaultLoginInfo.permission.includes("Admin")?false:true}>
-                <Tooltip title={defaultLoginInfo.permission.includes("Admin")?undefined:"Insufficient Privileges!"} color={"orange"}>{tagList['5']}
+                <Menu.Item key="5" disabled={loginInfo.current?loginInfo.current.permissionDescription.includes("Admin")?false:true:false}>
+                <Tooltip title={loginInfo.current?loginInfo.current.permissionDescription.includes("Admin")?undefined:"Insufficient Privileges!":undefined} color={"orange"}>{tagList['5']}
                 </Tooltip></Menu.Item>
             </SubMenu>
             <SubMenu key="sub2" icon={<FundViewOutlined />} title="Statistics">
@@ -69,11 +79,11 @@ export default function StaffSidebar({ loginInfo,updateSelection}) {
                 <Menu.Item key="9">{tagList['9']}</Menu.Item>
             </SubMenu>
             <SubMenu key="sub3" icon={<SettingOutlined />} title="Operation">
-                <Menu.Item key="10" disabled={defaultLoginInfo.permission.includes("Admin")?false:true}>
-                <Tooltip title={defaultLoginInfo.permission.includes("Admin")?undefined:"Insufficient Privileges!"} color={"orange"}>{tagList['10']}
+                <Menu.Item key="10" disabled={loginInfo.current?loginInfo.current.permissionDescription.includes("Admin")?false:true:false}>
+                <Tooltip title={loginInfo.current?loginInfo.current.permissionDescription.includes("Admin")?undefined:"Insufficient Privileges!":undefined} color={"orange"}>{tagList['10']}
                 </Tooltip></Menu.Item>
-                <Menu.Item key="11" disabled={defaultLoginInfo.permission.includes("Admin")?false:true}>
-                <Tooltip title={defaultLoginInfo.permission.includes("Admin")?undefined:"Insufficient Privileges!"} color={"orange"}>{tagList['11']}
+                <Menu.Item key="11" disabled={loginInfo.current?loginInfo.current.permissionDescription.includes("Admin")?false:true:false}>
+                <Tooltip title={loginInfo.current?loginInfo.current.permissionDescription.includes("Admin")?undefined:"Insufficient Privileges!":undefined} color={"orange"}>{tagList['11']}
                 </Tooltip></Menu.Item>
                 <Menu.Item key="12">{tagList['12']}</Menu.Item>
             </SubMenu>

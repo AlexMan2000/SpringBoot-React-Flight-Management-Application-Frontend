@@ -35,11 +35,9 @@ export default function FlightCRUD({loginInfo}){
 
     console.log(loginInfo);//默认
 
-    const defaultLoginInfo = {
-      permission:["Admin","Operator"]
-    }
-
-    console.log(defaultLoginInfo.permission.includes("Admin"));
+    // const defaultLoginInfo = {
+    //   permission:["Admin","Operator"]
+    // }
     
     //异步方法提交数据, 注意这里返回一个异步函数
     const fetchFlightData = async (query)=>{
@@ -295,8 +293,8 @@ export default function FlightCRUD({loginInfo}){
                   handleDetailModalVisible(true);
                   setStepFormValues(record);
                 }}>Details</Button>
-                 <Tooltip title={defaultLoginInfo.permission.includes("Operator")?undefined:"Insufficient Privileges!"} color={"orange"}>
-                <Button disabled={defaultLoginInfo.permission.includes("Operator")?false:true} onClick={()=>{
+                 <Tooltip title={loginInfo.current?loginInfo.current.permissionDescription.includes("Operator")?undefined:"Insufficient Privileges!":undefined} color={"orange"}>
+                <Button disabled={loginInfo.current?loginInfo.current.permissionDescription.includes("Operator")?false:true:false} onClick={()=>{
                     handleUpdateModalVisible(true);
                     setStepFormValues(record);
                 }} type={'primary'} size={'small'} >
@@ -309,8 +307,8 @@ export default function FlightCRUD({loginInfo}){
                     okText="Yes"
                     cancelText="No"
                 >
-                 <Tooltip title={defaultLoginInfo.permission.includes("Operator")?undefined:"Insufficient Privileges!"} color={"orange"}>
-                <Button disabled={defaultLoginInfo.permission.includes("Operator")?false:true} onClick={()=>{
+                 <Tooltip title={loginInfo.current?loginInfo.current.permissionDescription.includes("Operator")?undefined:"Insufficient Privileges!":undefined} color={"orange"}>
+                <Button disabled={loginInfo.current?loginInfo.current.permissionDescription.includes("Operator")?false:true:false} onClick={()=>{
                 }} type={'primary'} size={'small'} danger >
                   <DeleteOutlined style={{fontSize: '15px'}} />
                 </Button></Tooltip></Popconfirm>
@@ -379,8 +377,8 @@ export default function FlightCRUD({loginInfo}){
                 onchange:(_,selectedRows)=>setSelectedRows(selectedRows),
             }}
             toolBarRender={() => [
-              <Tooltip title={defaultLoginInfo.permission.includes("Admin")?undefined:"Insufficient Privileges!"} color={"orange"}>
-            <Button key="3" type="primary" disabled={defaultLoginInfo.permission.includes("Admin")?false:true} onClick={()=>{
+              <Tooltip title={loginInfo.current?loginInfo.current.permissionDescription.includes("Admin")?undefined:"Insufficient Privileges!":undefined} color={"orange"}>
+            <Button key="3" type="primary" disabled={loginInfo.current?loginInfo.current.permissionDescription.includes("Admin")?false:true:false} onClick={()=>{
                 handleCreateModalVisible(true);
 
             }}>

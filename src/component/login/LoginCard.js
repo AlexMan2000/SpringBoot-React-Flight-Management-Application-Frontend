@@ -1,8 +1,11 @@
-import {Card, Form, Input, Button} from 'antd';
+import {Card, Form, Input, Button,message} from 'antd';
 import React, {useState} from "react";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
+
+
+axios.defaults.withCredentials = true;
 
 export default function LoginCard(props) {
 
@@ -32,13 +35,20 @@ export default function LoginCard(props) {
             if(response_msg.status===true){
                 //登录成功,后台session中有用户信息,用于免登录
                 //前端保存用户的权限和基本信息
-                // console.log(response_msg);
+                console.log(response_msg);
+                // 从cookie中获取用户信息
                 if(activeTab==="customer"){
-                    loginInfo.current = response_msg.customer;
+                    const name = response_msg.customer.name;
+                    const infoMap = {alias:name,...response_msg.customer}
+                    loginInfo.current = infoMap;
                 }else if(activeTab==="staff"){
-                    loginInfo.current = response_msg.airlineStaff;
+                    const name = response_msg.airlineStaff.username;
+                    const infoMap = {alias:name,...response_msg.airlineStaff}
+                    loginInfo.current = infoMap;
                 }else if(activeTab==="agent"){
-                    loginInfo.current = response_msg.bookingAgent;
+                    const email = response_msg.bookingAgent.email;
+                    const infoMap = {alias:email,...response_msg.bookingAgent}
+                    loginInfo.current = infoMap;
                 }
                 setNavigateBar(activeTab);
                 setLoginModalVisible(false);
@@ -72,7 +82,6 @@ export default function LoginCard(props) {
             }
             
         })
-        console.log(values);
         // eslint-disable-next-line no-restricted-globals
         // navigate("/" + activeTab, {replace: true})
     }
@@ -158,7 +167,7 @@ export default function LoginCard(props) {
                 </Form.Item>
                 {activeTab==="agent"&&(
                 <Form.Item
-                    name="bookingAgentId"
+                    name="agentId"
                     rules={[{required: true, message: "Please input your booking agent Id"}]}>
                     <Input prefix={<UserOutlined className="site-form-item-icon" />}
                            placeholder={"Agent Id"} />

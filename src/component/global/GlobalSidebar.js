@@ -2,6 +2,7 @@ import {CarryOutOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons
 import {Menu,Avatar} from "antd";
 import React, {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
+import cookie from 'react-cookies'
 
 const {SubMenu} = Menu;
 
@@ -16,6 +17,7 @@ export default function GlobalSidebar({updateSelection}){
         if (tagList[item.key] == "Exit the System") {
             // clear local account information
             //Todo
+            cookie.remove("JSESSIONID");
             navigate("/", {replace: true})
         }
         updateSelection(tagList[item.key])

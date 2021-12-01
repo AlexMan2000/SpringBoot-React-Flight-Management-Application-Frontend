@@ -1,5 +1,5 @@
 import React, {useEffect, useState,useRef} from "react"
-import {Layout, Menu, Breadcrumb,Dropdown,Avatar,Button,Space,Modal,List} from "antd";
+import {Layout, Menu, Breadcrumb,Dropdown,Avatar,Button,Space,Modal,List,message} from "antd";
 import {CarryOutOutlined, SendOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import CustomerSidebar from "../component/customer/CustomerSidebar";
@@ -26,9 +26,14 @@ import GrantPermission from "../component/staff/GrantPermission";
 import axios from "axios";
 import LoginCard from "../component/login/LoginCard";
 import RegisterCard from "../component/login/RegisterCard";
+import cookie from 'react-cookies'
+import Cookies from "js-cookie"
 
 const {Header, Content, Sider, Footer} = Layout;
 const {SubMenu} = Menu;
+
+// 这里是为了能够成功设置上Cookies
+axios.defaults.withCredentials = true;
 
 export default function UserPage({initializingTab}) {
     let navigate = useNavigate();
@@ -46,9 +51,6 @@ export default function UserPage({initializingTab}) {
     // 在全局记录用户的登录信息(简单实现)
     const loginInfo = useRef(null);
 
-    const defaultLoginInfo = {userName:"haha"};
-    // const defaultLoginInfo = null;
-    
     useEffect(()=>{
         setNavigateBar(initializingTab)
         axios({
@@ -56,7 +58,7 @@ export default function UserPage({initializingTab}) {
             method:"GET",
         }).then(function(response){
             if(response.data){
-                console.log("haha");
+                // console.log("haha");
                 defaultData.current = response.data;
             }else{
                 console.log("No Results");
@@ -65,7 +67,43 @@ export default function UserPage({initializingTab}) {
             console.log("haha");
         })
     },[])
+
+    useEffect(()=>{
+        
+        axios({
+            url:"http://localhost:8080/login/token",
+            method:"POST",
+        }).then(function(response){
+            if(response.data){
+
+                if(response.data.status==true){
+                    const userType = response.data.userType;
+                    if(userType==="staff"){
+                        const name = response.data.airlineStaff.username;
+                        const infoMap = {alias:name,...response.data.airlineStaff}
+                         loginInfo.current = infoMap;
+                    }else if(userType==="customer"){
+                        const name = response.data.customer.name;
+                        const infoMap = {alias:name,...response.data.customer}
+                         loginInfo.current = infoMap;
+                    }else if(userType==="agent"){
+                        const email = response.data.bookingAgent.email;
+                         const infoMap = {alias:email,...response.data.bookingAgent}
+                         loginInfo.current = infoMap;
+                    }
+
+                    setNavigateBar(userType);
+                }
+            }
+            
+        }).catch(function(response){
+            message.destroy();
+            message.error("无网络连接");
+        })
+    })
   
+
+    console.log(loginInfo);
 
     const handleNavigateBar = (page) => {
         setNavigateBar(page.key);
@@ -125,7 +163,7 @@ export default function UserPage({initializingTab}) {
     }
 
     const menu = (<Menu>
-        {!defaultLoginInfo&&(
+        {!loginInfo.current&&(
         <Menu.Item icon={<SettingOutlined />}>
           <a onClick={()=>{setLoginModalVisible(true);}}>Log In</a>
           
@@ -148,6 +186,28 @@ export default function UserPage({initializingTab}) {
     }
 
 
+    const handleClick = ()=>{
+        axios({
+            url:"http://localhost:8080/test/testCookies",
+            method:"POST",
+            data:{
+                
+            },
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain:true
+        }).then(function(response){
+            message.success(response.data);
+            console.log(cookie.load("haha"));
+            message.success(Cookies.get("haha"));
+        }
+        )
+    }
+
+    // let customerList = null;
+
+    
     const customerList=[
         {
             title:"Email",
@@ -186,11 +246,10 @@ export default function UserPage({initializingTab}) {
         },
         {
             title:"Permission Level",
-            description:loginInfo.current?loginInfo.current.permissionDescription.join(", "):""
+            description:loginInfo.current?loginInfo.current.permissionDescription?loginInfo.current.permissionDescription.join(", "):"":""
         }
     ]
 
-   
     const sampleInfoData = [
         {
             title:"User Name",
@@ -218,7 +277,7 @@ export default function UserPage({initializingTab}) {
                 footer={[]}>
                     <List 
                     itemtlayout = {"horizontal"}
-                    dataSource={navigateBar==="customer"?customerList:navigateBar==="staff"?staffList:AgentList}
+                    dataSource={loginInfo.current?navigateBar==="customer"?customerList:navigateBar==="staff"?staffList:AgentList:{}}
                     renderItem={item=>
                     (<List.Item
                         >
@@ -256,7 +315,7 @@ export default function UserPage({initializingTab}) {
                     mode="horizontal"
                     defaultSelectedKeys={[initializingTab]}
                     selectedKeys={[navigateBar]}
-                    onClick={handleNavigateBar}
+                    // onClick={handleNavigateBar}
                     style={{marginLeft:"100px"}}
                 >
                     <Menu.Item key="customer">Customer</Menu.Item>
@@ -269,12 +328,10 @@ export default function UserPage({initializingTab}) {
             </Header>
             <Dropdown overlay={menu}>
                     {
-                    defaultLoginInfo?<Avatar style={{marginLeft:"1200px",zIndex:3,position: 'fixed',top:"10px"}} size="large"  
-                    // src={"https://joeschmoe.io/api/v1/"+defaultLoginInfo.userName} 
-                    // style={{ color: '#f56a00', backgroundColor: '#fde3cf',size:"middle" }}
-                    backgroundColor={"green"}
+                    loginInfo.current?<Avatar style={{marginLeft:"1200px",zIndex:3,position: 'fixed',top:"10px", color: '#f56a00', backgroundColor: '#fde3cf' }} size="large"  
+                    // src={"https://joeschmoe.io/api/v1/"+loginInfo.current?loginInfo.current.alias:null} 
                     >
-                    {defaultLoginInfo.userName[0].toUpperCase()}</Avatar>:
+                    {loginInfo.current?loginInfo.current.alias[0].toUpperCase():null}</Avatar>:
                     <Avatar style={{marginLeft:"1200px",zIndex:3,position: 'fixed',top:"10px"}} size="large" icon={<UserOutlined />}></Avatar>}
                 </Dropdown>
             <Layout style={{minHeight: '100vh', marginTop: 64}}>
@@ -296,6 +353,7 @@ export default function UserPage({initializingTab}) {
                 </Layout>
             </Layout>
             <Layout style={{textAlign: 'center', marginBottom: 0}}>
+                <Button type={"primary"} onClick={handleClick}>点我</Button>
                 <Footer>
                     2021 Global Airline All rights reserved.
                 </Footer>
