@@ -3,6 +3,9 @@ import {Menu} from "antd";
 import React, {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import cookie from 'react-cookies'
+import countDown from "../login/LoginOut";
+
+
 const {SubMenu} = Menu;
 
 export default function CustomerSidebar({loginInfo,updateSelection,defaultData,setActionType,setFlightResult}) {
@@ -24,14 +27,21 @@ export default function CustomerSidebar({loginInfo,updateSelection,defaultData,s
     const handleSidebarClick = (item) => {
         if (tagList[item.key] == "Logout") {
             // clear local account information
+            countDown(loginInfo);
             loginInfo.current = null;
             cookie.remove("JSESSIONID");
             navigate("/", {replace: true});
         }
+        else if(tagList[item.key] == "Search flights"){
+            updateSelection(tagList[item.key]);
+
+            setFlightResult(defaultData.current);
+        setActionType(actionTypeMapping[item.key]);}
+        else{
         updateSelection(tagList[item.key]);
 
             setFlightResult(null);
-        setActionType(actionTypeMapping[item.key]);
+        setActionType(actionTypeMapping[item.key]);}
     }
 
     useEffect(() => {

@@ -14,9 +14,13 @@ import {v4 as uuidv4} from "uuid";
 const {Search} = Input;
 const {Option} = Select;
 
+const formatterTime = (val) => {
+    return val ? moment(val).format("YYYY-MM-DD HH:mm:ss"): ''
+}
+
 export function FlightsResultTable(props) 
 {
-    const {data,userType,actionType,setRowRecord,setCustomerModalVis,setAgentModalVis} = props;
+    const {data,userType,loginInfo,actionType,setRowRecord,setCustomerModalVis,setAgentModalVis} = props;
     const {RangePicker} = DatePicker;
 
     const agentInterfaceColumns = [
@@ -48,12 +52,14 @@ export function FlightsResultTable(props)
         {
             title: "Dept. Time",
             dataIndex: "dept_time",
-            key: "dept_time"
+            key: "dept_time",
+            render: formatterTime
         },
         {
             title: "Arri. Time",
             dataIndex: "arri_time",
-            key: "arri_time"
+            key: "arri_time",
+            render: formatterTime
         },
         {
             title: "Price",
@@ -64,6 +70,11 @@ export function FlightsResultTable(props)
             title: "Customer Email",
             dataIndex: "customerEmail",
             key: "customerEmail"
+        },
+        {
+            title: "Remaining Seats",
+            dataIndex: "remainingSeats",
+            key: "seats"
         },
         {
             title: "Status",
@@ -97,6 +108,12 @@ export function FlightsResultTable(props)
 
     const customerInterfaceColumns = [
         {
+            title:"Ticket Id",
+            dataIndex:"ticket_id",
+            key:"ticket"
+        },
+
+        {
             title: "Flight No.",
             dataIndex: "flight_id",
             key: "flight"
@@ -114,12 +131,14 @@ export function FlightsResultTable(props)
         {
             title: "Dept. Time",
             dataIndex: "dept_time",
-            key: "dept_time"
+            key: "dept_time",
+            render: formatterTime
         },
         {
             title: "Arri. Time",
             dataIndex: "arri_time",
-            key: "arri_time"
+            key: "arri_time",
+            render: formatterTime
         },
         {
             title: "Price",
@@ -224,6 +243,7 @@ export function FlightsResultTable(props)
         dept_time:item.departureTime,
         arri_time:item.arrivalTime,
         price:item.price,
+        remainingSeats:item.remainingSeats,
         status:[item.status]
         })
     })}else if(actionType==="view"){
@@ -251,18 +271,21 @@ export function FlightsResultTable(props)
     }
     //根据actionTab 过滤展示的列
     if(actionType!=="purchase"){
-        columns = columns.filter((item)=>item.title!="Action")
+        columns = columns.filter((item)=>item.title!="Action"&&(item.title!=="Remaining Seats"))
     }
 
     if(actionType==="search"){
         columns = columns.filter((item)=>item.title!="User ID");
     }
+    console.log(actionType);
+    console.log(dataMap);
+    console.log(columns);
     return (
         <Table columns={columns} dataSource={dataMap} size="middle"/>
     )
 }
 
-export default function SearchFlights({userType,actionTab,flightsResult,setFlightResult,actionType}) {
+export default function SearchFlights({loginInfo,userType,actionTab,flightsResult,setFlightResult,actionType}) {
 
     const {RangePicker} = DatePicker;
 
@@ -280,8 +303,6 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
     const [agentModalVis,setAgentModalVis] = useState(false);
     const [customerModalVis,setCustomerModalVis] = useState(false);
 
-
-    
 
     const searchAirport=()=>{
         axios({
@@ -319,7 +340,6 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
 
     const handleSearchFlights = () => {
         // search flights
-        console.log("xixi");
         axios({
             url:"http://localhost:8080/index/searchFlights",
             method:"POST",
@@ -328,13 +348,12 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
                 departureTime:deptDate}
         }).then(function(response){
             if(response.data){
-                console.log(response.data);
                 setFlightResult(response.data);
             }else{
                 console.log("No Results");
             }
         }).catch(function(response){
-            console.log("haha");
+            console.log("No Results!");
         })
 
     }
@@ -344,7 +363,10 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
         axios({
             url:"http://localhost:8080/bookingAgent/getAllAvailableFlights",
             method:"POST",
-            data: {}
+            data: {
+                sourceAirportName:deptAirport,
+                destAirportName:arriAirport
+            }
         }).then(function(response){
             if(response.data){
                 console.log(response.data);
@@ -356,9 +378,9 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
 
     }
 
-    const handleExactSearch = () => {
-        setFlightResult("testing");
-    }
+    // const handleExactSearch = () => {
+    //     setFlightResult("testing");
+    // }
 
 
     // 处理和ViewFlights相关的请求
@@ -369,13 +391,13 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
             sendObject = qs.stringify({
                 sourceAirport:deptAirport,
                 destAirport:arriAirport,
-                email:"abababababa@gmail.com",
+                email:loginInfo.current?loginInfo.current.email:"abababababa@gmail.com",
             })
         }else{
             sendObject= qs.stringify({
                 sourceAirport:deptAirport,
                 destAirport:arriAirport,
-                email:"abababababa@gmail.com",
+                email:loginInfo.current?loginInfo.current.email:"abababababa@gmail.com",
                 startDate:new Date(deptDate),
                 endDate:new Date(deptDate2)
             })
@@ -398,8 +420,32 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
         })
     }
 
+    const defineCardTitle = ()=>{
+        if(actionType==="view"){
+
+            if(userType==="customer"){
+                return `Click Search for your fligh information, ${loginInfo.current?loginInfo.current.alias:"username"}!`
+            }else{
+                return `Click Search for the orders you created for customers!`
+            }
+        }else if(actionType==="purchase"){
+            
+            if(userType==="customer"){
+                return `Start planning your journey, ${loginInfo.current?loginInfo.current.alias:"username"}!`
+            }else{
+                return `Click Search for the avaliable flights!`
+            }
+        }else{
+            if(userType==="customer"){
+                return `Click Search to see upcoming flights, ${loginInfo.current?loginInfo.current.alias:"username"}!`
+            }else{
+                return 'Click Search to See upcoming flights!'
+            }
+        }
+    }
+
     return (
-        <Card title={actionTab!=="view"?"Start planning your journey, Username!":"Welcome you"}>
+        <Card title={defineCardTitle()}>
             <Input.Group>
                 <b>From:</b>
                 <Select
@@ -443,26 +489,17 @@ export default function SearchFlights({userType,actionTab,flightsResult,setFligh
                 <Button type="primary" onClick={actionType==="view"?handleViewFlights:actionType==="purchase"?handleSearchPurchase:handleSearchFlights}>Search</Button>
             </Input.Group>
             
-            {(actionTab==="purchase")&&(
-                <div>
-            <p>Or use exact searching:</p>
-            <Input
-                addonBefore="Flight Number"
-                placeholder="Airline Code + Digits"
-                value={flightID}
-                allowClear
-                maxLength={6}
-                style={{width: '50vw'}}
-            />
-            <b style={{padding: 10}}> </b>
-        </div>)}
+        
             <Divider />
-            {flightsResult ? <FlightsResultTable data={flightsResult}  userType={userType} actionType={actionType} setRowRecord={setRowRecord} setAgentModalVis={setAgentModalVis} setCustomerModalVis={setCustomerModalVis}/> : null}
+            {flightsResult ? <FlightsResultTable data={flightsResult} loginInfo={loginInfo} userType={userType} actionType={actionType} setRowRecord={setRowRecord} setAgentModalVis={setAgentModalVis} setCustomerModalVis={setCustomerModalVis}/> : null}
             
-            {rowRecord? <AgentModal agentModalVis={agentModalVis} setAgentModalVis={setAgentModalVis} rowRecord={rowRecord} setRowRecord={setRowRecord}></AgentModal>:null}
+            {rowRecord? <AgentModal loginInfo={loginInfo} agentModalVis={agentModalVis} setAgentModalVis={setAgentModalVis} rowRecord={rowRecord} setRowRecord={setRowRecord}></AgentModal>:null}
 
-            {rowRecord? <CustomerModal customerModalVis={customerModalVis} setCustomerModalVis={setCustomerModalVis} rowRecord={rowRecord} setRowRecord={setRowRecord}></CustomerModal>:null}
+            {rowRecord? <CustomerModal loginInfo={loginInfo} customerModalVis={customerModalVis} setCustomerModalVis={setCustomerModalVis} rowRecord={rowRecord} setRowRecord={setRowRecord}></CustomerModal>:null}
                 
+            
+            {/* {flightResult&&defaultData?} */}
+
         </Card>
     )
 }

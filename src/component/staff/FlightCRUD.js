@@ -42,8 +42,11 @@ export default function FlightCRUD({loginInfo}){
     //异步方法提交数据, 注意这里返回一个异步函数
     const fetchFlightData = async (query)=>{
         return axios({
-          url:"http://localhost:8080/airlineStaff/findAllFlights",
-          method:"GET"
+          url:"http://localhost:8080/airlineStaff/findAllFlightsForAirline",
+          method:"GET",
+          params:{
+            airlineName:loginInfo.current?loginInfo.current.airlineName:"Spring Airlines"
+          }
         }).then(function(response){
           if(response.data){
             console.log(response.data);

@@ -47,6 +47,7 @@ export default function UserPage({initializingTab}) {
     const [infoModalVisible,setInfoModalVisible] = useState(false);
     const [registerModalVisible,setRegisterModalVisible] = useState(false);
     const [initializeType,setInitializeType] = useState("customer");
+    const [registerLoginValue,setRegisterLoginValue] = useState(undefined);
     const defaultData = useRef(null);
     // 在全局记录用户的登录信息(简单实现)
     const loginInfo = useRef(null);
@@ -60,14 +61,17 @@ export default function UserPage({initializingTab}) {
             if(response.data){
                 // console.log("haha");
                 defaultData.current = response.data;
+                // console.log(defaultData.current);
+                setFlightResult(defaultData.current);
             }else{
                 console.log("No Results");
             }
         }).catch(function(response){
             console.log("haha");
         })
-    },[])
+    },["default"])
 
+    // 如果用户尚未登录
     useEffect(()=>{
         
         axios({
@@ -82,25 +86,37 @@ export default function UserPage({initializingTab}) {
                         const name = response.data.airlineStaff.username;
                         const infoMap = {alias:name,...response.data.airlineStaff}
                          loginInfo.current = infoMap;
+                         message.success("Welcome Back, "+name);
                     }else if(userType==="customer"){
                         const name = response.data.customer.name;
                         const infoMap = {alias:name,...response.data.customer}
                          loginInfo.current = infoMap;
+                         message.success("Welcome Back, "+name);
                     }else if(userType==="agent"){
                         const email = response.data.bookingAgent.email;
                          const infoMap = {alias:email,...response.data.bookingAgent}
                          loginInfo.current = infoMap;
+                         message.success("Welcome Back, "+email);
                     }
 
                     setNavigateBar(userType);
                 }
             }
+            else{
+            //     // setNavigateBar("global");
+               
+                message.destroy();
+                message.error("您尚未登录");
+                setNavigateBar("global");
+                navigate("/global",{replace:true})
+            }
             
         }).catch(function(response){
             message.destroy();
-            message.error("无网络连接");
+           
+            message.error("Backend Server not started!");
         })
-    })
+    },[1])
   
 
     console.log(loginInfo);
@@ -120,7 +136,7 @@ export default function UserPage({initializingTab}) {
 
     const userContent = {
         "Flight CRUD":<FlightCRUD loginInfo={loginInfo}/>,
-        "My flights": <SearchFlights userType={initializingTab} actionTab={"view"} 
+        "My flights": <SearchFlights loginInfo={loginInfo} userType={initializingTab} actionTab={"view"} 
                                     flightsResult={flightsResult} 
                                     setFlightResult={setFlightResult} 
                                     actionType={actionType}/>,
@@ -136,7 +152,7 @@ export default function UserPage({initializingTab}) {
                                            flightsResult={flightsResult} 
                                            setFlightResult={setFlightResult} 
                                            actionType={actionType}/>,
-        "Track spending": <SpendingChart />,
+        "Track spending": <SpendingChart loginInfo={loginInfo}/>,
         "Top customers": <TopCustomerChart />,
         "Create order": <SearchFlights userType={initializingTab}
                                        loginInfo={loginInfo}  
@@ -150,14 +166,14 @@ export default function UserPage({initializingTab}) {
                                             flightsResult={flightsResult} 
                                             setFlightResult={setFlightResult} 
                                             actionType={actionType}/>,
-        "Commission statistics": <CommissionStatistics />,
+        "Commission statistics": <CommissionStatistics loginInfo={loginInfo}/>,
         "Add airport": <EditAirport loginInfo={loginInfo}/>,
         "Add airplane": <EditAirplane loginInfo={loginInfo}/>,
         "Add booking agent":<AddAgents loginInfo={loginInfo}/>,
         "View Agents":<ViewAgents />,
-        "View Reports":<ViewReports/>,
+        "View Reports":<ViewReports loginInfo={loginInfo}/>,
         "Top destinations":<TopDestinations/>,
-        "Revenue Comparison":<RevenueComparison/>,
+        "Revenue Comparison":<RevenueComparison loginInfo={loginInfo}/>,
         "Frequent customers":<ViewFrequent/>,
         "Grant permission":<GrantPermission loginInfo={loginInfo}/>
     }
@@ -168,9 +184,9 @@ export default function UserPage({initializingTab}) {
           <a onClick={()=>{setLoginModalVisible(true);}}>Log In</a>
           
         </Menu.Item>)}
-        <Menu.Item icon={<UserOutlined/>}>
+        {loginInfo.current&&(<Menu.Item icon={<UserOutlined/>}>
         <a onClick={()=>{setInfoModalVisible(true)}}>Account Information</a>
-        </Menu.Item>
+        </Menu.Item>)}
       </Menu>);
 
     const onCancelLogin = ()=>{
@@ -247,6 +263,10 @@ export default function UserPage({initializingTab}) {
         {
             title:"Permission Level",
             description:loginInfo.current?loginInfo.current.permissionDescription?loginInfo.current.permissionDescription.join(", "):"":""
+        },
+        {
+            title:"Airline",
+            description:loginInfo.current?loginInfo.current.airlineName:""
         }
     ]
 
@@ -277,7 +297,7 @@ export default function UserPage({initializingTab}) {
                 footer={[]}>
                     <List 
                     itemtlayout = {"horizontal"}
-                    dataSource={loginInfo.current?navigateBar==="customer"?customerList:navigateBar==="staff"?staffList:AgentList:{}}
+                    dataSource={loginInfo.current?navigateBar==="customer"?customerList:navigateBar==="staff"?staffList:AgentList:[{}]}
                     renderItem={item=>
                     (<List.Item
                         >
@@ -297,7 +317,7 @@ export default function UserPage({initializingTab}) {
                 onCancel={() => {onCancelLogin()}}
                 footer={[]}
                 >
-                <LoginCard loginInfo={loginInfo} setInitializeType={setInitializeType}  setLoginModalVisible={setLoginModalVisible} setNavigateBar={setNavigateBar} setRegisterModalVisible={setRegisterModalVisible}/>
+                <LoginCard loginInfo={loginInfo} registerLoginValue={registerLoginValue} setRegisterLoginValue={setRegisterLoginValue} setInitializeType={setInitializeType}  setLoginModalVisible={setLoginModalVisible} setNavigateBar={setNavigateBar} setRegisterModalVisible={setRegisterModalVisible}/>
             </Modal>}
             {<Modal 
                 destroyOnClose
@@ -306,7 +326,7 @@ export default function UserPage({initializingTab}) {
                 onCancel={() => {onCancelRegister()}}
                 footer={[]}
                 >
-                <RegisterCard initializeType={initializeType} setRegisterModalVisible={setRegisterModalVisible} />
+                <RegisterCard initializeType={initializeType} setRegisterLoginValue={setRegisterLoginValue}  setNavigateBar={setNavigateBar} setRegisterModalVisible={setRegisterModalVisible} />
             </Modal>}
             <Header className={"header"} style={{position: 'fixed', zIndex: 2, width: '100%'}}>
                 
@@ -334,7 +354,7 @@ export default function UserPage({initializingTab}) {
                     {loginInfo.current?loginInfo.current.alias[0].toUpperCase():null}</Avatar>:
                     <Avatar style={{marginLeft:"1200px",zIndex:3,position: 'fixed',top:"10px"}} size="large" icon={<UserOutlined />}></Avatar>}
                 </Dropdown>
-            <Layout style={{minHeight: '100vh', marginTop: 64}}>
+            <Layout style={{minHeight: '91vh', marginTop: 64}}>
                 <Sider width={250} height={100} className="site-layout-background" collapsible collapsed={collapsed} onCollapse={setCollapsed}>
                     {sidebarList[navigateBar]}
                 </Sider>
@@ -350,14 +370,16 @@ export default function UserPage({initializingTab}) {
                     >
                         {userContent[sidebar]}
                     </Content>
-                </Layout>
-            </Layout>
-            <Layout style={{textAlign: 'center', marginBottom: 0}}>
-                <Button type={"primary"} onClick={handleClick}>点我</Button>
+                    <Layout style={{textAlign: 'center', marginBottom: 0}}>
                 <Footer>
                     2021 Global Airline All rights reserved.
                 </Footer>
             </Layout>
+                </Layout>
+               
+
+            </Layout>
+           
 
         </Layout>
     )

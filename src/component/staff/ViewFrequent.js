@@ -330,7 +330,7 @@ export default function ViewFrequent(){
             <InputNumber min={1} onChange={onNumberChange} defaultValue={5}></InputNumber>
           <span style={{marginLeft:2}}>Agents</span>
           </>
-          <Tooltip placement="topLeft" title="Click the bar to check the flights taken"><QuestionCircleOutlined/></Tooltip>
+          <Tooltip color={"orange"} placement="topLeft" title="Click the bar to check the flights taken"><QuestionCircleOutlined/></Tooltip>
           </Space>
       )
     }

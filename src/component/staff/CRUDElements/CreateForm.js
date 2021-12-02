@@ -25,7 +25,10 @@ export default function CreateForm(props){
       return current && current < moment().endOf('day');
     }
 
-    const options = ["upcoming","finished","cancelled","onBoarding","delayed"];
+    const options = ["upcoming","cancelled",
+    "checking in",
+    "delayed",
+    "on time"];
     const optionsData = options.map((item)=><Option key={item}>{item}</Option>)
 
     

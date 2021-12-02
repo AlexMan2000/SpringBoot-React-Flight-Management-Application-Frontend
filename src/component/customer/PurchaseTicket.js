@@ -46,10 +46,6 @@ export default function PurchaseTicket() {
         setFlightResult("testing");
     }
 
-    const handleExactSearch = () => {
-        setFlightResult("testing");
-    }
-
 
     return (
         <Card title="Start planning your journey, Username!">
@@ -91,17 +87,7 @@ export default function PurchaseTicket() {
                 <span style={{padding: 10}}> </span>
                 <Button type="primary" onClick={handleSearchFlights}>Search</Button>
             </Input.Group>
-            <p>Or use exact searching:</p>
-            <Input
-                addonBefore="Flight Number"
-                placeholder="Airline Code + Digits"
-                value={flightID}
-                allowClear
-                maxLength={6}
-                style={{width: '50vw'}}
-            />
-            <b style={{padding: 10}}> </b>
-            <Button type={"primary"} onClick={handleExactSearch}>Exact Searching</Button>
+        
 
             <Divider />
             {flightsResult ? <FlightsResultTable data={flightsResult} /> : null}

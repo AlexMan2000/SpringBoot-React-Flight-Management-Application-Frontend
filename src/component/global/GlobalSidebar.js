@@ -3,6 +3,7 @@ import {Menu,Avatar} from "antd";
 import React, {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import cookie from 'react-cookies'
+import { countDownAnony } from "../login/LoginOut";
 
 const {SubMenu} = Menu;
 
@@ -15,7 +16,8 @@ export default function GlobalSidebar({updateSelection}){
 
     const handleSidebarClick = (item) => {
         if (tagList[item.key] == "Exit the System") {
-            // clear local account information
+            // Say goodbye!
+            countDownAnony();
             //Todo
             cookie.remove("JSESSIONID");
             navigate("/", {replace: true})

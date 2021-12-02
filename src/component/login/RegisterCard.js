@@ -19,7 +19,7 @@ import {
   message
 } from 'antd';
 
-export default function RegisterCard({initializeType,setRegisterModalVisible}){
+export default function RegisterCard({initializeType,setRegisterModalVisible,setRegisterLoginValue,setNavigateBar}){
   console.log(initializeType);
     const { Option } = Select;
     const navigate = useNavigate();
@@ -102,7 +102,11 @@ export default function RegisterCard({initializeType,setRegisterModalVisible}){
           data:values
         }).then(function(response){
             if(response.data==="success"){
-              navigate("/login");
+              message.success("Register Completed!");
+              // setRegisterLoginValue(values);
+              setNavigateBar("global");
+              setRegisterModalVisible(false);
+              navigate("/global",{replace:true});
             }
         })
       };

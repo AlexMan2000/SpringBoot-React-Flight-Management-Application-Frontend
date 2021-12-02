@@ -3,5 +3,6 @@ export const statusColor = {
     "cancelled":"gray",
     "checking in": "yellow",
     "delayed": "red",
-    "on time":"green"
+    "on time":"green",
+    "full":"black"
 }

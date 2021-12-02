@@ -2,6 +2,11 @@ import {Button, Space, Tag} from "antd";
 import {statusColor} from "./statusTag";
 import React from "react";
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import moment from "moment";
+
+const formatterTime = (val) => {
+    return val ? moment(val).format("YYYY-MM-DD HH:mm:ss"): ''
+}
 
 
 export const ticketColumns = [
@@ -260,12 +265,14 @@ export const globalInterfaceColumns = [
     {
         title: "Dept. Time",
         dataIndex: "dept_time",
-        key: "dept_time"
+        key: "dept_time",
+        render: formatterTime
     },
     {
         title: "Arri. Time",
         dataIndex: "arri_time",
-        key: "arri_time"
+        key: "arri_time",
+        render: formatterTime
     },
     {
         title: "Status",

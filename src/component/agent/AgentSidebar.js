@@ -3,6 +3,7 @@ import {Menu} from "antd";
 import React, {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import cookie from 'react-cookies';
+import countDown from "../login/LoginOut";
 
 const {SubMenu} = Menu;
 
@@ -26,6 +27,7 @@ export default function AgentSidebar({loginInfo,updateSelection,defaultData,setA
     const handleSidebarClick = (item) => {
         if (tagList[item.key] == "Logout") {
             // clear local account information
+            countDown(loginInfo);
             loginInfo.current = null;
             cookie.remove("JSESSIONID");
             navigate("/", {replace: true})

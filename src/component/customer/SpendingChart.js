@@ -5,7 +5,7 @@ import {dateFormat} from "../../lib/dateFormat";
 import axios from "axios";
 import moment from "moment";
 
-export default function SpendingChart() {
+export default function SpendingChart({loginInfo}) {
 
     const [spendingData, setSpendingData] = useState([]);
     const [startDate,setStart] = useState(moment().subtract(30, 'days'));
@@ -17,11 +17,11 @@ export default function SpendingChart() {
             method:"POST",
             data:{startDate:startDate,
                 endDate:endDate,
-                email:"12345@qq.com"},
+                email:loginInfo.current?loginInfo.current.email:"User"},
         }).then(function(response){
             if(response.data){
                 console.log(response.data);
-            const dataMap = response.data.map((item)=>({type:item.timestamp,value:item.value}))
+            const dataMap = response.data.map((item)=>({type:item.interval,value:item.value}))
             setSpendingData(dataMap);}
         })
     },[])
@@ -59,7 +59,7 @@ export default function SpendingChart() {
         }).then(function(response){
             if(response.data.length>0){
                 console.log(response.data);
-            const dataMap = response.data.map((item)=>({type:item.timestamp,value:item.value}))
+            const dataMap = response.data.map((item)=>({type:item.interval,value:item.value}))
             setSpendingData(dataMap);
             if(type=="start"){
             setStartDate(start);}
@@ -88,7 +88,8 @@ export default function SpendingChart() {
         label: {
             type: 'inner',
             offset: '-30%',
-        }
+        },
+        interactions: [{ type: 'element-selected' }, { type: 'element-active' }]
     }
 
     return (

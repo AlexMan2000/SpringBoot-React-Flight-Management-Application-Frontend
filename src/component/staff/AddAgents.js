@@ -39,7 +39,7 @@ export default function AddAgents({loginInfo}) {
 
     const onFinish =(values)=>{
       axios.post("http://localhost:8080/airlineStaff/addBookingAgent",
-      qs.stringify({...values,airlineName:"Spring Airlines"})).then(function(response){
+      qs.stringify({...values,airlineName:loginInfo.current?loginInfo.current.airlineName:"Spring Airlines"})).then(function(response){
         if(response.data){
           if(response.data.success===true){
             message.success("Addition Succeeded!")

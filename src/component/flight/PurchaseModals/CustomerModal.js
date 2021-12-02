@@ -6,7 +6,7 @@ import axios from "axios";
 
 export default function CustomerModal(props){
 
-    const {customerModalVis,setCustomerModalVis,rowRecord,setRowRecord} = props;
+    const {loginInfo,customerModalVis,setCustomerModalVis,rowRecord,setRowRecord} = props;
     const [showStatus,setStatus] = useState("purchase"); //用于控制显示购票成功的信息
     // 展示随机生成的TicketId, 航班信息，购买时间
     const [purchaseInfo,setPurchaseInfo] = useState({});
@@ -44,7 +44,7 @@ export default function CustomerModal(props){
         console.log({
             airlineName:form.getFieldValue("airlineName"),
             flightNum:form.getFieldValue('flightNum'),
-              email:"12345@qq.com",
+              email:loginInfo.current?loginInfo.current.email:"12345@qq.com",
               bookingAgentId:null
           });
         axios({
@@ -53,7 +53,7 @@ export default function CustomerModal(props){
             data:{
               airlineName:form.getFieldValue("airlineName"),
               flightNum:form.getFieldValue('flightNum'),
-                email:"12345@qq.com",
+                email:loginInfo.current?loginInfo.current.email:"12345@qq.com",
                 bookingAgentId:null
             }
         }).then(function(response){

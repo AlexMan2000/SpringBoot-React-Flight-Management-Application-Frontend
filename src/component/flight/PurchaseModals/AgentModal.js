@@ -11,7 +11,7 @@ import qs from "qs";
 
 export default function AgentModal(props){
 
-    const {agentModalVis,setAgentModalVis,rowRecord,setRowRecord} = props;
+    const {loginInfo,agentModalVis,setAgentModalVis,rowRecord,setRowRecord} = props;
     const [showStatus,setStatus] = useState("purchase"); //用于控制显示购票成功的信息
     // 展示随机生成的TicketId, 被代理人的Email, 和赚取的Commission Fee.
     const [purchaseInfo,setPurchaseInfo] = useState({});
@@ -60,7 +60,7 @@ export default function AgentModal(props){
               airlineName:form.getFieldValue("airlineName"),
               flightNum:form.getFieldValue('flightNum'),
                 email:form.getFieldValue("email"),
-                bookingAgentId:13123123,
+                bookingAgentId:loginInfo.current?loginInfo.current.bookingAgentId:13123123,
             }
         }).then(function(response){
             //购票成功, 展示数据

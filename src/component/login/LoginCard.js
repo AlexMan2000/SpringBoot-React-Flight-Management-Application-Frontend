@@ -4,12 +4,12 @@ import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 
-
+axios.defaults.timeout = 1000;
 axios.defaults.withCredentials = true;
 
 export default function LoginCard(props) {
 
-    const {loginInfo,setInitializeType,setRegisterModalVisible,setNavigateBar,setLoginModalVisible} = props;
+    const {loginInfo,setInitializeType,setRegisterModalVisible,registerLoginValue,setRegisterLoginValue,setNavigateBar,setLoginModalVisible} = props;
     let navigate = useNavigate();
 
     const [form] = Form.useForm();
@@ -81,6 +81,8 @@ export default function LoginCard(props) {
                 }
             }
             
+        }).catch(function(response){
+            message.error("Server response time out!");
         })
         // eslint-disable-next-line no-restricted-globals
         // navigate("/" + activeTab, {replace: true})
@@ -119,6 +121,7 @@ export default function LoginCard(props) {
                 name="login"
                 className="login-form"
                 onFinish={onFinish}
+                // initialValues={registerLoginValue}
                 onFinishedFailed={onFinishFailed}
             >
 

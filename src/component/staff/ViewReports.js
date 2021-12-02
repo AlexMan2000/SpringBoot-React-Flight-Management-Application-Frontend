@@ -8,7 +8,7 @@ import { SettingOutlined } from '@ant-design/icons';
 import moment from "moment";
 
 
-export default function ViewReports(){
+export default function ViewReports({loginInfo}){
     const [data,setData]=useState([]);
     const [totalSales,setTotalSales] = useState(undefined);
     const past = useRef("year");
@@ -36,7 +36,7 @@ export default function ViewReports(){
       axios.get("http://localhost:8080/airlineStaff/viewReports",
       {
         params:{
-          airlineName:"Spring Airlines",
+          airlineName:loginInfo.current?loginInfo.current.airlineName:"Spring Airlines",
           startDate:startDate?new Date(startDate):null,
           endDate:endDate?new Date(endDate):null
         }
