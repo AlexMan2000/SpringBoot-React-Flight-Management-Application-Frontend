@@ -415,11 +415,14 @@ export default function RegisterCard({initializeType,setRegisterModalVisible,set
               },
             ]}
           >
-          <Select onFocus={getAirlineList} placeholder="Please select a country" style={{width:"80%"}}>
+          {/* <Select onFocus={getAirlineList} placeholder="Please select a country" style={{width:"80%"}}>
             {airlineList.map((item)=>
                (<Option value={item} key={item}>{item}</Option>)
             )}
-          </Select>
+          </Select> */}
+          <Input style={{
+                width: '80%',
+              }} ></Input>
           </Form.Item>)}
     
           {initializeType==="customer"&&(

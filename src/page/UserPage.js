@@ -136,31 +136,34 @@ export default function UserPage({initializingTab}) {
 
     const userContent = {
         "Flight CRUD":<FlightCRUD loginInfo={loginInfo}/>,
-        "My flights": <SearchFlights loginInfo={loginInfo} userType={initializingTab} actionTab={"view"} 
+        "My flights": <SearchFlights setNavigateBar={setNavigateBar} loginInfo={loginInfo} userType={initializingTab} actionTab={"view"} 
                                     flightsResult={flightsResult} 
                                     setFlightResult={setFlightResult} 
                                     actionType={actionType}/>,
-        "Search flights": <SearchFlights userType={initializingTab} 
+        "Search flights": <SearchFlights setNavigateBar={setNavigateBar} userType={initializingTab} 
                                         loginInfo={loginInfo} 
                                         actionTab={"search"} 
                                         flightsResult={flightsResult} 
                                         setFlightResult={setFlightResult} 
                                         actionType={actionType}/>,
-        "Purchase tickets": <SearchFlights userType={initializingTab} 
+        "Purchase tickets": <SearchFlights setNavigateBar={setNavigateBar}
+                                            userType={initializingTab} 
                                            loginInfo={loginInfo} 
                                            actionTab={"purchase"} 
                                            flightsResult={flightsResult} 
                                            setFlightResult={setFlightResult} 
                                            actionType={actionType}/>,
         "Track spending": <SpendingChart loginInfo={loginInfo}/>,
-        "Top customers": <TopCustomerChart />,
-        "Create order": <SearchFlights userType={initializingTab}
+        "Top customers": <TopCustomerChart loginInfo={loginInfo}/>,
+        "Create order": <SearchFlights setNavigateBar={setNavigateBar}
+                                       userType={initializingTab}
                                        loginInfo={loginInfo}  
                                        actionTab={"purchase"} 
                                        flightsResult={flightsResult}
                                        setFlightResult={setFlightResult}
                                        actionType={actionType}/>,
-        "My customer orders": <SearchFlights userType={initializingTab} 
+        "My customer orders": <SearchFlights setNavigateBar={setNavigateBar}
+                                            userType={initializingTab} 
                                             loginInfo={loginInfo} 
                                             actionTab={"search"} 
                                             flightsResult={flightsResult} 
@@ -170,11 +173,11 @@ export default function UserPage({initializingTab}) {
         "Add airport": <EditAirport loginInfo={loginInfo}/>,
         "Add airplane": <EditAirplane loginInfo={loginInfo}/>,
         "Add booking agent":<AddAgents loginInfo={loginInfo}/>,
-        "View Agents":<ViewAgents />,
-        "View Reports":<ViewReports loginInfo={loginInfo}/>,
+        "View Agents":<ViewAgents loginInfo={loginInfo} />,
+        "View Reports":<ViewReports setNavigateBar={setNavigateBar} loginInfo={loginInfo}/>,
         "Top destinations":<TopDestinations/>,
         "Revenue Comparison":<RevenueComparison loginInfo={loginInfo}/>,
-        "Frequent customers":<ViewFrequent/>,
+        "Frequent customers":<ViewFrequent loginInfo={loginInfo}/>,
         "Grant permission":<GrantPermission loginInfo={loginInfo}/>
     }
 
@@ -202,28 +205,6 @@ export default function UserPage({initializingTab}) {
     }
 
 
-    const handleClick = ()=>{
-        axios({
-            url:"http://localhost:8080/test/testCookies",
-            method:"POST",
-            data:{
-                
-            },
-            xhrFields: {
-                withCredentials: true
-            },
-            crossDomain:true
-        }).then(function(response){
-            message.success(response.data);
-            console.log(cookie.load("haha"));
-            message.success(Cookies.get("haha"));
-        }
-        )
-    }
-
-    // let customerList = null;
-
-    
     const customerList=[
         {
             title:"Email",

@@ -20,7 +20,7 @@ export default function SpendingChart({loginInfo}) {
                 email:loginInfo.current?loginInfo.current.email:"User"},
         }).then(function(response){
             if(response.data){
-                console.log(response.data);
+            //  const parsedData = JSON.parse(response.data);
             const dataMap = response.data.map((item)=>({type:item.interval,value:item.value}))
             setSpendingData(dataMap);}
         })

@@ -50,6 +50,7 @@ export default function FlightCRUD({loginInfo}){
         }).then(function(response){
           if(response.data){
             console.log(response.data);
+            // const parsedData = JSON.parse(response.data);
               defaultRef.current = false;
               return {"data":{...response.data},"success":true};
           }else{
@@ -70,7 +71,7 @@ export default function FlightCRUD({loginInfo}){
         data:query
       }).then(function(response){
         if(response.data){
-          console.log(response.data);
+          
             return {"data":{...response.data},"success":true};
         }else{
            return {"data":{},"success":false};
@@ -142,7 +143,24 @@ export default function FlightCRUD({loginInfo}){
     }
 
     const handleUpdate = (flight_info)=>{
-        console.log("update");
+        console.log(flight_info);
+        axios({
+          url:"http://localhost:8080/airlineStaff/updateStatus",
+          method:"POST",
+          data:{
+            flightNum:flight_info.flightNum,
+            airlineName:flight_info.airlineName,
+            status:flight_info.status,
+          }
+
+        }).then(function(response){
+          if(response.data==="success"){
+            handleUpdateModalVisible(false);
+            message.success("Update Succeed!");
+          }
+        }).catch(function(response){
+          message.error("Server not responding!")
+        })
     }
 
     const handleUpdateMany =()=>{

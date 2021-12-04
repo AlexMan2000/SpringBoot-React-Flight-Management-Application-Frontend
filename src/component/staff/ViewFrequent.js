@@ -11,7 +11,7 @@ import {statusColor} from "../../lib/statusTag";
 axios.defaults.timeout = 1000;
 const {RangePicker} = DatePicker;
 
-export default function ViewFrequent(){
+export default function ViewFrequent({loginInfo}){
      // sales 和 commission
      const [activeTab,setActiveTab] = useState("sales");
      const [topK,setTopK] = useState(10);
@@ -229,7 +229,7 @@ export default function ViewFrequent(){
  
      useEffect(()=>{
         //  setData(topSalesData);
-        getCustomerData();
+        getCustomerData(topK);
      },[])
  
      const tabList = [
@@ -240,30 +240,30 @@ export default function ViewFrequent(){
      const onNumberChange=(value)=>{
          //更新图标
          setTopK(value);
+         if(value>topK){
+         getCustomerData(value);}
      }
 
-     const getCustomerData = ()=>{
+     const getCustomerData = (value)=>{
         axios.get("http://localhost:8080/airlineStaff/getTopKCustomers",
         {
             params:{
-                K:topK,
-                airlineName:null
+                K:value,
+                airlineName:loginInfo.current?loginInfo.current.airlineName:null
             },
             }).then(function(response){
                 if(response.data){
                     originData.current = response.data;
-                    // console.log(response.data);
                     const dataMap = processData();
-                    console.log(originData.current)
-                    // const tableDataMap = processTableData();
-                    message.success("数据获取成功,渲染完毕");
-                    // setTableData(tableDataMap);
+                    message.destroy();
+                    message.success("Data Loaded!");
                     setData(dataMap);
                 }
         }).catch(function(response){
             setData(topSalesData);
             setTableData(tableSampleData);
-            message.error("数据获取失败,使用默认数据");
+            message.destroy();
+            message.error("Data Loading Failed!");
         })
      }
 
@@ -303,19 +303,7 @@ export default function ViewFrequent(){
             )
         return dataMap;
      }
-    //  const handleChangeTime = (value)=>{
-    //     console.log(value);
-    //     const dataMap = processData(value);
-    //     setData(dataMap);
-    //  }
 
-    //  const renderLastYear = ()=>{
-        
-    // }
-
-    // const renderLastMonth = ()=>{
-
-    // }
 
     const renderTabExtra = ()=>{
 

@@ -9,7 +9,7 @@ import { SettingOutlined } from '@ant-design/icons';
 // 设置最大等待时间
 axios.defaults.timeout = 1000;
 
-export default function ViewAgents(){
+export default function ViewAgents({setNavigateBar}){
 
     // sales 和 commission
     const [activeTab,setActiveTab] = useState("sales");
@@ -17,7 +17,7 @@ export default function ViewAgents(){
     const [topK,setTopK] = useState(5);
     const [data,setData]=useState(null);
 
-    console.log(past);
+    const fixed = 5;
     const topSalesData =[
         {
             type:"22@23.com",
@@ -41,7 +41,8 @@ export default function ViewAgents(){
         }
     ]
 
-    useEffect(()=>{handleSearchSales()
+    useEffect(()=>{
+        handleSearchSales(topK)
     },[])
 
     const topCommissionData=[
@@ -72,17 +73,17 @@ export default function ViewAgents(){
         {key: 'commission', tab: 'Commission Ranking'},
     ]
 
-    const handleSearchSales=()=>{
+    const handleSearchSales=(value)=>{
+        
         axios.get("http://localhost:8080/airlineStaff/getTopK",{
             params:{
                 type:"sales",
-                K:topK,
+                K:value,
                 past:past
             },
             timeout:1000
         }).then(function(response){
             if(response.data){
-                console.log(response.data);
                 const dataMap = response.data.map((item)=>({type:item.email,sales:item.totalSales}));
                 setData(dataMap);
             }
@@ -92,18 +93,17 @@ export default function ViewAgents(){
         })
     }
 
-    const handleSearchCommission=()=>{
+    const handleSearchCommission=(value)=>{
 
         axios.get("http://localhost:8080/airlineStaff/getTopK",{
             params:{
                 type:"commission",
-                K:topK,
+                K:value,
                 past:past
             }
         }).then(function(response){
             if(response.data){
                 const dataMap = response.data.map((item)=>({type:item.email,commission:item.commissionFees}));
-                console.log(dataMap);
                 setData(dataMap);
             }
         }).catch(function(response){
@@ -118,17 +118,23 @@ export default function ViewAgents(){
         if(key==="sales"){
             // setData(topSalesData);
             setData(null);
-            handleSearchSales();
+            handleSearchSales(topK);
         }else{
             // setData(topCommissionData);
             setData(null);
-            handleSearchCommission();
+            handleSearchCommission(topK);
         }
     }
 
     const onNumberChange=(value)=>{
         //更新图标
         setTopK(value);
+        if(value>topK){
+        if(activeTab==="sales"){
+            handleSearchSales(value);
+        }else if(activeTab==="commission"){
+            handleSearchCommission(value);
+        }}
     }
 
 
@@ -154,7 +160,7 @@ export default function ViewAgents(){
         tabBarExtraContent={<>
         {activeTab==="sales"&&(<Space ><Button type={"primary"} onClick={()=>{setPast("month")}}>Past Month</Button>
         <Button  type={"primary"} onClick={()=>{setPast("year")}}>Past Year</Button></Space>)}
-        <Space><span style={{marginRight:5,marginLeft:10}}>Top</span><InputNumber addonBefore="+" addonAfter="$" min={1} onChange={onNumberChange} defaultValue={5}></InputNumber><span style={{marginLeft:5}}>Agents</span></Space>
+        <Space><span style={{marginRight:5,marginLeft:10}}>Top</span><InputNumber addonBefore="+" addonAfter="$" min={1} onChange={onNumberChange} defaultValue={fixed}></InputNumber><span style={{marginLeft:5}}>Agents</span></Space>
         </>}
         hoverable={true}>
 

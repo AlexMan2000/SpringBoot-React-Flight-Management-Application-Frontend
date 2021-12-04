@@ -39,6 +39,8 @@ export default function EditAirport({loginInfo}) {
         }
       }).then(function(response){
         if(response.data){
+          console.log(response.data);
+          // console.log(JSON.parse(response.data));
           setTableData(response.data);
         }
       })
@@ -53,7 +55,7 @@ export default function EditAirport({loginInfo}) {
       axios({
         url:"http://localhost:8080/airlineStaff/addNewAirplane",
         method:"post",
-        data:{airline:values.airlineName,
+        data:{airline:loginInfo.current?loginInfo.current.airlineName:undefined,
               id:values.airplaneId,
               seats:values.seats
               }
@@ -101,10 +103,12 @@ export default function EditAirport({loginInfo}) {
         },
       };
 
-      console.log(loginInfo.current);
 
-
-
+      const initialvalue = {
+        airlineName:loginInfo.current?loginInfo.current.airlineName:undefined,
+        airplaneId:undefined,
+        seats:200
+      }
 
     const [form] = Form.useForm();
     return (
@@ -116,7 +120,8 @@ export default function EditAirport({loginInfo}) {
             name="airplane"
             className="airplane-form"
             onFinish={onFinish}
-            onFinishedFailed={onFinishFailed}>
+            onFinishedFailed={onFinishFailed}
+            initialValues={initialvalue}>
            
             <Form.Item
             name="airlineName"
@@ -126,7 +131,7 @@ export default function EditAirport({loginInfo}) {
                 message:"Aiport Name should not be empty!"}
             ]}>
 
-                <Input ></Input>
+                <Input disabled={true} ></Input>
             </Form.Item>
 
             <Form.Item
@@ -145,7 +150,7 @@ export default function EditAirport({loginInfo}) {
             label="Seat Number"
             >
 
-                <InputNumber defaultValue={200} ></InputNumber>
+                <InputNumber  ></InputNumber>
             </Form.Item>
 
             <Form.Item {...tailFormItemLayout}> 

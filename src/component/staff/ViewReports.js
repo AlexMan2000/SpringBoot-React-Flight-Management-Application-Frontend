@@ -2,13 +2,13 @@ import {Card, Form, Input, Button,Table,DatePicker,Space,message,Statistic} from
 import { Column } from '@ant-design/charts';
 import React, {useState,useEffect,useRef} from "react";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
-import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import { SettingOutlined } from '@ant-design/icons';
 import moment from "moment";
+import cookie from 'react-cookies';
+import {useNavigate} from "react-router-dom";
 
-
-export default function ViewReports({loginInfo}){
+export default function ViewReports({loginInfo,setNavigateBar}){
     const [data,setData]=useState([]);
     const [totalSales,setTotalSales] = useState(undefined);
     const past = useRef("year");
@@ -16,7 +16,7 @@ export default function ViewReports({loginInfo}){
     const originalData = useRef([]);
 
     const loadingHolder= Boolean(totalSales);
-
+    const navigate = useNavigate();
 
     const {RangePicker} = DatePicker;
     
@@ -41,18 +41,26 @@ export default function ViewReports({loginInfo}){
           endDate:endDate?new Date(endDate):null
         }
       }).then(function(response){
-          message.success("数据加载成功");
-          console.log(response.data);
+          if(response.data["statusCode"]==503){
+            console.log("跳出");
+            loginInfo.current = null;
+                message.destroy();
+                message.error("Session Expired!");
+                cookie.remove("JSESSIONID");
+                setNavigateBar("global");
+                navigate("/global", {replace: true})
+          }else{
+          message.destroy();
+          message.success("Data loaded!");
           const dataMap = response.data.map((item)=>({type:item.interval,sales:item.value}))
           const totalSales = dataMap.reduce(getSum,0);//这个零是初始化为零开始累加的意思
-          console.log(totalSales);
           originalData.current = dataMap;
           setData(dataMap);
-          setTotalSales(totalSales)
+          setTotalSales(totalSales);}
           
 
       }).catch(function(){
-          message.error("访问超时，使用默认数据");
+          message.error("Time out");
           originalData.current = sampleData;
           setData(sampleData);
       })

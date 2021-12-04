@@ -7,6 +7,8 @@ import { ConsoleSqlOutlined } from '@ant-design/icons';
 
 const FormItem = Form.Item;
 
+const {Option} = Select;
+
 const formLayout = {
     labelCol: { span: 7 },
     wrapperCol: { span: 13 },
@@ -26,6 +28,19 @@ export default function UpdateForm(props){
         ...props.values,
     });
 
+
+    const optionList = ["cancelled","checking in","delayed","on time","full"]
+
+    const optionDiaplayMapping = {
+      "cancelled":"Cancelled",
+      "checking in":"Checking In",
+      "delayed":"Delayed",
+      "on time":"On Time",
+      "full":"Full/Not Avaliable For Purchase"
+    }
+
+    const optionMapping = optionList.map((item)=>(<Option key={item} value={item}>{optionDiaplayMapping[item]}</Option>))
+
     const handleNext = async () => {
         const fieldsValue = await form.validateFields();
         setFormVals({ ...formVals, ...fieldsValue});
@@ -40,22 +55,23 @@ export default function UpdateForm(props){
               label="Flight Number"
               rules={[{ required: true, message: 'Please input flight number!' }]}
             >
-              <Input placeholder="请输入" />
+              <Input disabled={true} placeholder="请输入" />
             </FormItem>
             <FormItem
               name="airlineName"
               label="Airline Name"
               rules={[{ required: true, message: 'Please input airline name!' }]}
             >
-              <Input placeholder="请输入" />
+              <Input disabled={true} placeholder="请输入" />
             </FormItem>
     
             {(<FormItem
               name="sourceAirportName"
               label="Departure Airport"
+              
               rules={[{ required: true, message: 'Please Input Departure Airport' }]}
             >
-              <Input placeholder="请输入" />
+              <Input disabled={true} placeholder="请输入" />
             </FormItem>)}
             {/* {(<FormItem
             name="departureTime"
@@ -71,9 +87,10 @@ export default function UpdateForm(props){
             <FormItem
             name="destAirportName"
             label="Arrival Airport"
+            
             rules={[{ required: true, message: 'Please input  Arrival Airport' }]}
             >
-            <Input placeholder="请输入" />
+            <Input disabled={true} placeholder="请输入" />
             </FormItem>
 
             {/* <FormItem
@@ -90,16 +107,19 @@ export default function UpdateForm(props){
             <FormItem
             name="price"
             label="price"
+            
             rules={[{ required: true, message: 'Please input the price' }]}
             >
-            <Input placeholder="请输入" />
+            <Input disabled={true} placeholder="请输入" />
             </FormItem>
             <FormItem
             name="status"
             label="status"
-            rules={[{ required: true, message: 'Please input the status' }]}
+            rules={[{ required: true, message: 'Please select the status' }]}
             >
-            <Input placeholder="请输入" />
+            <Select>
+              {optionMapping}
+            </Select>
             </FormItem>
           </>
         );

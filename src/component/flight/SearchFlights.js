@@ -10,9 +10,14 @@ import axios from "axios";
 import moment from "moment";
 import qs from "qs";
 import {v4 as uuidv4} from "uuid";
+import cookie from 'react-cookies';
+import {useNavigate} from "react-router-dom";
 
 const {Search} = Input;
 const {Option} = Select;
+
+axios.defaults.timeout = 2000;
+
 
 const formatterTime = (val) => {
     return val ? moment(val).format("YYYY-MM-DD HH:mm:ss"): ''
@@ -22,6 +27,7 @@ export function FlightsResultTable(props)
 {
     const {data,userType,loginInfo,actionType,setRowRecord,setCustomerModalVis,setAgentModalVis} = props;
     const {RangePicker} = DatePicker;
+
 
     const agentInterfaceColumns = [
         {
@@ -265,7 +271,6 @@ export function FlightsResultTable(props)
         })
     }
 
-    console.log(dataMap);
     if(actionType!=="view"){
         columns = columns.filter((item)=>(item.title!="Ticket Id")&&(item.title!=="Customer Email"));
     }
@@ -277,15 +282,13 @@ export function FlightsResultTable(props)
     if(actionType==="search"){
         columns = columns.filter((item)=>item.title!="User ID");
     }
-    console.log(actionType);
-    console.log(dataMap);
-    console.log(columns);
+
     return (
         <Table columns={columns} dataSource={dataMap} size="middle"/>
     )
 }
 
-export default function SearchFlights({loginInfo,userType,actionTab,flightsResult,setFlightResult,actionType}) {
+export default function SearchFlights({loginInfo,userType,actionTab,setNavigateBar,flightsResult,setFlightResult,actionType}) {
 
     const {RangePicker} = DatePicker;
 
@@ -303,6 +306,7 @@ export default function SearchFlights({loginInfo,userType,actionTab,flightsResul
     const [agentModalVis,setAgentModalVis] = useState(false);
     const [customerModalVis,setCustomerModalVis] = useState(false);
 
+    const navigate = useNavigate();
 
     const searchAirport=()=>{
         axios({
@@ -347,12 +351,20 @@ export default function SearchFlights({loginInfo,userType,actionTab,flightsResul
                 destAirportName:arriAirport,
                 departureTime:deptDate}
         }).then(function(response){
+            // if(response.data["statusCode"]==503){
+            //     loginInfo.current = null;
+            //     cookie.remove("JSESSIONID");
+            //     setNavigateBar("global");
+            //     navigate("/global", {replace: true})
+            // }
+
             if(response.data){
                 setFlightResult(response.data);
             }else{
                 console.log("No Results");
             }
         }).catch(function(response){
+            setFlightResult(null);
             console.log("No Results!");
         })
 
@@ -361,7 +373,7 @@ export default function SearchFlights({loginInfo,userType,actionTab,flightsResul
     const handleSearchPurchase = () => {
         console.log("xixi");
         axios({
-            url:"http://localhost:8080/bookingAgent/getAllAvailableFlights",
+            url:userType==="customer"?"http://localhost:8080/customer/getAllAvailableFlights":"http://localhost:8080/bookingAgent/getAllAvailableFlights",
             method:"POST",
             data: {
                 sourceAirportName:deptAirport,
