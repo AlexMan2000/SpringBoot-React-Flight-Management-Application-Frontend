@@ -124,15 +124,25 @@ export default function AgentModal(props){
             <List 
               itemtlayout = {"horizontal"}
               dataSource={data}
-              renderItem={item=>
-              (<List.Item
+              renderItem={item=>{
+                if(item.title==="Purchase Date"){
+                  return(<List.Item
+                  >
+                  <List.Item.Meta
+                  title={item.title}
+                  description={moment(item.description).format("yyy-MM-DD")}>
+
+                  </List.Item.Meta>
+              </List.Item>)
+                }
+              return (<List.Item
                   >
                   <List.Item.Meta
                   title={item.title}
                   description={item.description}>
 
                   </List.Item.Meta>
-              </List.Item>)}>
+              </List.Item>)}}>
             </List>
           </>)
         }

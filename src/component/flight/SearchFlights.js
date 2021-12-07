@@ -83,6 +83,11 @@ export function FlightsResultTable(props)
             key: "seats"
         },
         {
+            title: "Purchasing Date",
+            dataIndex: "purchaseDate",
+            key: "purchaseDate"
+        },
+        {
             title: "Status",
             dataIndex: "status",
             key: "status",
@@ -265,6 +270,7 @@ export function FlightsResultTable(props)
                 dept_time:item.departureTime,
                 arri_time:item.arrivalTime,
                 price:item.price,
+                purchaseDate:item.purchaseDate?moment(item.purchaseDate).format("YYYY-MM-DD"):undefined,
                 customerEmail:item.customerEmail,
                 status:[item.status]
             })
@@ -272,7 +278,7 @@ export function FlightsResultTable(props)
     }
 
     if(actionType!=="view"){
-        columns = columns.filter((item)=>(item.title!="Ticket Id")&&(item.title!=="Customer Email"));
+        columns = columns.filter((item)=>(item.title!="Ticket Id")&&(item.title!=="Customer Email")&&(item.title!="Purchasing Date"));
     }
     //根据actionTab 过滤展示的列
     if(actionType!=="purchase"){
@@ -294,7 +300,7 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
 
     const [deptAirport, setDeptAirport] = useState(undefined);
     const [arriAirport, setArriAirport] = useState(undefined);
-    const [deptDate, setDeptDate] = useState(""); //today
+    const [deptDate, setDeptDate] = useState(undefined); //today
     const [deptDate2,setDeptDate2] = useState("");
     const [searchResult, setSearchResult] = useState([]);
     // const [flightsResult, setFlightResult] = useState(null);
@@ -333,6 +339,7 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
 
     //callback就是传入的回调函数，value就是一个参数为value的，调用了callback的函数
     const handleChange = (callBack) => (value) => {
+        console.log(value);
         callBack(value);
     }
 
@@ -344,12 +351,13 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
 
     const handleSearchFlights = () => {
         // search flights
+        // console.log(deptDate);
         axios({
             url:"http://localhost:8080/index/searchFlights",
             method:"POST",
             data: {sourceAirportName:deptAirport,
                 destAirportName:arriAirport,
-                departureTime:deptDate}
+                departureTime:deptDate?moment(deptDate).format("YYYY-MM-DD HH:mm:ss"):undefined}
         }).then(function(response){
             // if(response.data["statusCode"]==503){
             //     loginInfo.current = null;
@@ -377,7 +385,8 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
             method:"POST",
             data: {
                 sourceAirportName:deptAirport,
-                destAirportName:arriAirport
+                destAirportName:arriAirport,
+                departureTime:deptDate?moment(deptDate).format("YYYY-MM-DD HH:mm:ss"):undefined
             }
         }).then(function(response){
             if(response.data){
@@ -406,12 +415,14 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
                 email:loginInfo.current?loginInfo.current.email:"abababababa@gmail.com",
             })
         }else{
+            console.log("view flights");
+            console.log(deptDate);
             sendObject= qs.stringify({
                 sourceAirport:deptAirport,
                 destAirport:arriAirport,
                 email:loginInfo.current?loginInfo.current.email:"abababababa@gmail.com",
-                startDate:new Date(deptDate),
-                endDate:new Date(deptDate2)
+                startDate:deptDate?moment(deptDate[0]).format("YYYY-MM-DD HH:mm:ss"):undefined,
+                endDate:deptDate?moment(deptDate[1]).format("YYYY-MM-DD HH:mm:ss"):undefined
             })
         }
         axios({
@@ -494,8 +505,9 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
                 >
                     {options}
                 </Select>
-                {actionType==="view"?<RangePicker onChange={()=>{handleChange(setDeptDate);handleChange(setDeptDate2)}} picker="day" style={{width:200}} placeholder={["Begin With","End With"]}></RangePicker>:
-                <DatePicker format={dateFormat} onChange={handleChange(setDeptDate)} style={{width:200}} placeholder={"Depate After"} />}
+                {actionType==="view"?<RangePicker onChange={setDeptDate} format={"YYYY-MM-DD HH:mm:ss"} showTime={{ defaultValue: moment('YYYY-MM-DD HH:mm:ss') }} style={{width:200}} placeholder={["Begin With","End With"]}></RangePicker>:
+                <DatePicker format={"YYYY-MM-DD HH:mm:ss"} onChange={handleChange(setDeptDate)} showTime={{ defaultValue: moment('YYYY-MM-DD HH:mm:ss') }}
+   style={{width:200}} placeholder={"Depate After"} />}
                 
                 <span style={{padding: 10}}> </span>
                 <Button type="primary" onClick={actionType==="view"?handleViewFlights:actionType==="purchase"?handleSearchPurchase:handleSearchFlights}>Search</Button>

@@ -3,6 +3,7 @@ import { Table, Select,Form, Button, Input, Modal, DatePicker, InputNumber, mess
 import { render } from '@testing-library/react';
 import moment from "moment";
 import axios from "axios";
+import { ContinuousLegend } from '@antv/g2/lib/dependents';
 
 export default function DetailsTable(props){
     const {detailModalVisible,onCancel,handleDetailModalVisible,values} = props;
@@ -24,6 +25,21 @@ export default function DetailsTable(props){
     // }]
 
     const dataSource = values.passengers;
+    const dataMap = dataSource.map((item)=>{
+        return ({
+            email:item.email,
+            name:item.name,
+            buildingNumber:item.buildingNumber,
+            street:item.street,
+            city:item.city,
+            livingState:item.livingState,
+            phoneNumber:item.phoneNumber,
+            passportExpiration:moment(item.passportExpiration).format("yyyy-MM-DD"),
+            passportCountry:item.passportCountry,
+            passportNumber:item.passportNumber,
+            birthday:moment(item.birthday).format("yyyy-MM-DD")
+        })
+    })
 
     const columns=[
         {
@@ -105,7 +121,7 @@ export default function DetailsTable(props){
       width={1300}
       footer={[]}
       >
-    <Table scroll={{x:1300}} columns={columns} dataSource={dataSource}>
+    <Table scroll={{x:1300}} columns={columns} dataSource={dataMap}>
 
     </Table></Modal></>
     )

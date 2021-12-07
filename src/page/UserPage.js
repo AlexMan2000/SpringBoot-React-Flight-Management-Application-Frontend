@@ -87,16 +87,19 @@ export default function UserPage({initializingTab}) {
                         const infoMap = {alias:name,...response.data.airlineStaff}
                          loginInfo.current = infoMap;
                          message.success("Welcome Back, "+name);
+                         navigate("/staff",{replace:true})
                     }else if(userType==="customer"){
                         const name = response.data.customer.name;
                         const infoMap = {alias:name,...response.data.customer}
                          loginInfo.current = infoMap;
                          message.success("Welcome Back, "+name);
+                         navigate("/customer",{replace:true})
                     }else if(userType==="agent"){
                         const email = response.data.bookingAgent.email;
                          const infoMap = {alias:email,...response.data.bookingAgent}
                          loginInfo.current = infoMap;
                          message.success("Welcome Back, "+email);
+                         navigate("/agent",{replace:true})
                     }
 
                     setNavigateBar(userType);
@@ -136,18 +139,18 @@ export default function UserPage({initializingTab}) {
 
     const userContent = {
         "Flight CRUD":<FlightCRUD loginInfo={loginInfo}/>,
-        "My flights": <SearchFlights setNavigateBar={setNavigateBar} loginInfo={loginInfo} userType={initializingTab} actionTab={"view"} 
+        "My flights": <SearchFlights setNavigateBar={setNavigateBar} loginInfo={loginInfo} userType={navigateBar} actionTab={"view"} 
                                     flightsResult={flightsResult} 
                                     setFlightResult={setFlightResult} 
                                     actionType={actionType}/>,
-        "Search flights": <SearchFlights setNavigateBar={setNavigateBar} userType={initializingTab} 
+        "Search flights": <SearchFlights setNavigateBar={setNavigateBar} userType={navigateBar} 
                                         loginInfo={loginInfo} 
                                         actionTab={"search"} 
                                         flightsResult={flightsResult} 
                                         setFlightResult={setFlightResult} 
                                         actionType={actionType}/>,
         "Purchase tickets": <SearchFlights setNavigateBar={setNavigateBar}
-                                            userType={initializingTab} 
+                                            userType={navigateBar} 
                                            loginInfo={loginInfo} 
                                            actionTab={"purchase"} 
                                            flightsResult={flightsResult} 
@@ -156,14 +159,14 @@ export default function UserPage({initializingTab}) {
         "Track spending": <SpendingChart loginInfo={loginInfo}/>,
         "Top customers": <TopCustomerChart loginInfo={loginInfo}/>,
         "Create order": <SearchFlights setNavigateBar={setNavigateBar}
-                                       userType={initializingTab}
+                                       userType={navigateBar}
                                        loginInfo={loginInfo}  
                                        actionTab={"purchase"} 
                                        flightsResult={flightsResult}
                                        setFlightResult={setFlightResult}
                                        actionType={actionType}/>,
         "My customer orders": <SearchFlights setNavigateBar={setNavigateBar}
-                                            userType={initializingTab} 
+                                            userType={navigateBar} 
                                             loginInfo={loginInfo} 
                                             actionTab={"search"} 
                                             flightsResult={flightsResult} 

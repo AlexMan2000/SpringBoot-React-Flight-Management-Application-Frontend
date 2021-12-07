@@ -71,7 +71,7 @@ export default function FlightCRUD({loginInfo}){
         data:query
       }).then(function(response){
         if(response.data){
-          
+            console.log(response.data);
             return {"data":{...response.data},"success":true};
         }else{
            return {"data":{},"success":false};

@@ -4,6 +4,7 @@ import React, {useState,useEffect,useRef} from "react";
 import {LockOutlined, UserOutlined,QuestionCircleOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
+import moment from "moment";
 import { SettingOutlined } from '@ant-design/icons';
 import {statusColor} from "../../lib/statusTag";
 
@@ -255,6 +256,7 @@ export default function ViewFrequent({loginInfo}){
                 if(response.data){
                     originData.current = response.data;
                     const dataMap = processData();
+                    console.log(dataMap);
                     message.destroy();
                     message.success("Data Loaded!");
                     setData(dataMap);
@@ -268,6 +270,7 @@ export default function ViewFrequent({loginInfo}){
      }
 
      const processTableData = (email)=>{
+         console.log("haha");
          if(originData.current===null){
              return tableSampleData;
          }
@@ -276,13 +279,14 @@ export default function ViewFrequent({loginInfo}){
             return []
         }else{
             const takenFlights = tableData.takenFlights;
+            
         const tableDataMap = takenFlights.map((item)=>{
             return ({
                 key:[item.flightNum,item.airlineName],
                 flight_id:item.flightNum,
                 airline:item.airlineName,
-                dept_time:item.departureTime,
-                arri_time:item.arrivalTime,
+                dept_time:moment(item.departureTime).format("yyyy-MM-DD HH:mm:ss"),
+                arri_time:moment(item.arrivalTime).format("yyyy-MM-DD HH:mm:ss"),
                 dept:item.sourceAirportName,
                 arri:item.destAirportName,
                 price:item.price,
@@ -316,7 +320,7 @@ export default function ViewFrequent({loginInfo}){
           <>
           <span style={{marginRight:2}}>Top</span>
             <InputNumber min={1} onChange={onNumberChange} defaultValue={5}></InputNumber>
-          <span style={{marginLeft:2}}>Agents</span>
+          <span style={{marginLeft:2}}>Customers</span>
           </>
           <Tooltip color={"orange"} placement="topLeft" title="Click the bar to check the flights taken"><QuestionCircleOutlined/></Tooltip>
           </Space>
@@ -350,10 +354,7 @@ export default function ViewFrequent({loginInfo}){
 
     // 编写图例点击事件
     const handleClick =(event)=>{
-        console.log(event);
         const tableDataMap = processTableData(event.data.data.customer);
-        // console.log(tableDataMap);
-        // setTableData(tableSampleData);
         setTableData(tableDataMap);
         setModalEmail(event.data.data.customer);
         setModalVisibility(true);
