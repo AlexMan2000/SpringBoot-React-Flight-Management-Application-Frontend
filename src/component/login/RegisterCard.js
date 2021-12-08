@@ -19,8 +19,9 @@ import {
   message
 } from 'antd';
 
+axios.defaults.timeout = 2000;
+
 export default function RegisterCard({initializeType,setRegisterModalVisible,setRegisterLoginValue,setNavigateBar}){
-  console.log(initializeType);
     const { Option } = Select;
     const navigate = useNavigate();
     const residences = [
@@ -93,7 +94,6 @@ export default function RegisterCard({initializeType,setRegisterModalVisible,set
       const [airlineList,setAirlineList] = useState([]);
     
       const onFinish = (values) => {
-        console.log('Received values of form: ', values);
         axios({
           method:'POST',
           url:initializeType==="customer"?'http://localhost:8080/register/registerCustomer'
@@ -156,16 +156,13 @@ export default function RegisterCard({initializeType,setRegisterModalVisible,set
                 url:'http://localhost:8080/register/validateAirlineStaff',
                 params:{"username":value}
             }).then(function(response){
-                console.log(response);
                 if(response.data.valid===false){
                     callback("Staff already registered!");
-                    console.log("草");
                 }else{
                     callback();
-                    console.log("haha");
                 }
             }).catch(function(error){
-                console.log("error")
+              message.error("Back end server not started!");
             })
       }
 
@@ -176,20 +173,17 @@ export default function RegisterCard({initializeType,setRegisterModalVisible,set
             "http://localhost:8080/register/validateCustomer",
             params:{"email":value}
         }).then(function(response){
-            console.log(response);
             if(response.data.valid===false){
                 if(initializeType==="agent"){
                 callback("Agent already registered!");}
                 else{
                     callback("Customer already registered!")
                 }
-                console.log("草");
             }else{
                 callback();
-                console.log("haha");
             }
         }).catch(function(error){
-            console.log("error")
+          message.error("Back end server not started!");
         })
       }
 
@@ -198,11 +192,10 @@ export default function RegisterCard({initializeType,setRegisterModalVisible,set
           method:'GET',
           url:"http://localhost:8080/register/getAirlineList"
       }).then(function(response){
-        console.log(response.data);
           setAirlineList(response.data);
           console.log("data injection completed")
       }).catch(function(error){
-          console.log("error")
+        message.error("Back end server not started!");
       })
       }
 

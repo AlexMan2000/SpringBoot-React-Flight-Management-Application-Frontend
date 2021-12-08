@@ -30,16 +30,14 @@ export default function RevenueComparison(){
           airlineName:"Spring Airlines"
         }
       }).then(function(response){
-          message.success("数据加载成功");
+          message.success("Data loaded!");
           const dataMap = response.data.map((item)=>({type:item.type,value:item.value}))
           const totalSales = dataMap.reduce(getSum,0);//这个零是初始化为零开始累加的意思
-          console.log(dataMap);
           setData(dataMap);
           setTotalSales(totalSales)
 
       }).catch(function(){
           message.error("访问超时，使用默认数据");
-          console.log(sampleData);
           setData(sampleData);
       })
 

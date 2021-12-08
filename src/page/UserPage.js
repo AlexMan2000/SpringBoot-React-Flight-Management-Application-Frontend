@@ -34,6 +34,7 @@ const {SubMenu} = Menu;
 
 // 这里是为了能够成功设置上Cookies
 axios.defaults.withCredentials = true;
+axios.defaults.timeout = 2000;
 
 export default function UserPage({initializingTab}) {
     let navigate = useNavigate();
@@ -48,9 +49,11 @@ export default function UserPage({initializingTab}) {
     const [registerModalVisible,setRegisterModalVisible] = useState(false);
     const [initializeType,setInitializeType] = useState("customer");
     const [registerLoginValue,setRegisterLoginValue] = useState(undefined);
+    const [deptDate,setDeptDate] = useState(undefined);
     const defaultData = useRef(null);
     // 在全局记录用户的登录信息(简单实现)
     const loginInfo = useRef(null);
+
 
     useEffect(()=>{
         setNavigateBar(initializingTab)
@@ -59,15 +62,14 @@ export default function UserPage({initializingTab}) {
             method:"GET",
         }).then(function(response){
             if(response.data){
-                // console.log("haha");
                 defaultData.current = response.data;
-                // console.log(defaultData.current);
                 setFlightResult(defaultData.current);
             }else{
                 console.log("No Results");
             }
         }).catch(function(response){
-            console.log("haha");
+            message.destroy();
+            message.error("Back end server not started!");
         })
     },["default"])
 
@@ -106,8 +108,6 @@ export default function UserPage({initializingTab}) {
                 }
             }
             else{
-            //     // setNavigateBar("global");
-               
                 message.destroy();
                 message.error("您尚未登录");
                 setNavigateBar("global");
@@ -122,34 +122,38 @@ export default function UserPage({initializingTab}) {
     },[1])
   
 
-    console.log(loginInfo);
-
     const handleNavigateBar = (page) => {
         setNavigateBar(page.key);
         navigate("/" + page.key, {replace: true});
     }
 
     const sidebarList = {
-        customer: <CustomerSidebar loginInfo={loginInfo} updateSelection={setSidebar} setActionType={setActionType} defaultData={defaultData} setFlightResult={setFlightResult} />,
-        agent: <AgentSidebar loginInfo={loginInfo} updateSelection={setSidebar} setActionType={setActionType} defaultData={defaultData} setFlightResult={setFlightResult}/>,
-        staff: <StaffSidebar loginInfo={loginInfo} updateSelection={setSidebar} setActionType={setActionType}  setFlightResult={setFlightResult}/>,
-        global: <GlobalSidebar loginInfo={loginInfo} updateSelection={setSidebar} setActionType={setActionType}  setFlightResult={setFlightResult}/>,
+        customer: <CustomerSidebar loginInfo={loginInfo} setDeptDate={setDeptDate} updateSelection={setSidebar} setActionType={setActionType} defaultData={defaultData} setFlightResult={setFlightResult} />,
+        agent: <AgentSidebar loginInfo={loginInfo} setDeptDate={setDeptDate} updateSelection={setSidebar} setActionType={setActionType} defaultData={defaultData} setFlightResult={setFlightResult}/>,
+        staff: <StaffSidebar loginInfo={loginInfo} setDeptDate={setDeptDate} updateSelection={setSidebar} setActionType={setActionType}  setFlightResult={setFlightResult}/>,
+        global: <GlobalSidebar loginInfo={loginInfo} setDeptDate={setDeptDate} updateSelection={setSidebar} setActionType={setActionType}  setFlightResult={setFlightResult}/>,
     }
 
 
     const userContent = {
         "Flight CRUD":<FlightCRUD loginInfo={loginInfo}/>,
         "My flights": <SearchFlights setNavigateBar={setNavigateBar} loginInfo={loginInfo} userType={navigateBar} actionTab={"view"} 
+                                    deptDate={deptDate}
+                                    setDeptDate={setDeptDate}
                                     flightsResult={flightsResult} 
                                     setFlightResult={setFlightResult} 
                                     actionType={actionType}/>,
         "Search flights": <SearchFlights setNavigateBar={setNavigateBar} userType={navigateBar} 
+                                        deptDate={deptDate}
+                                    setDeptDate={setDeptDate}
                                         loginInfo={loginInfo} 
                                         actionTab={"search"} 
                                         flightsResult={flightsResult} 
                                         setFlightResult={setFlightResult} 
                                         actionType={actionType}/>,
         "Purchase tickets": <SearchFlights setNavigateBar={setNavigateBar}
+                                            deptDate={deptDate}
+                                             setDeptDate={setDeptDate}
                                             userType={navigateBar} 
                                            loginInfo={loginInfo} 
                                            actionTab={"purchase"} 
@@ -159,6 +163,8 @@ export default function UserPage({initializingTab}) {
         "Track spending": <SpendingChart loginInfo={loginInfo}/>,
         "Top customers": <TopCustomerChart loginInfo={loginInfo}/>,
         "Create order": <SearchFlights setNavigateBar={setNavigateBar}
+                                        deptDate={deptDate}
+                                        setDeptDate={setDeptDate}
                                        userType={navigateBar}
                                        loginInfo={loginInfo}  
                                        actionTab={"purchase"} 
@@ -166,6 +172,8 @@ export default function UserPage({initializingTab}) {
                                        setFlightResult={setFlightResult}
                                        actionType={actionType}/>,
         "My customer orders": <SearchFlights setNavigateBar={setNavigateBar}
+                                            deptDate={deptDate}
+                                    setDeptDate={setDeptDate}
                                             userType={navigateBar} 
                                             loginInfo={loginInfo} 
                                             actionTab={"search"} 

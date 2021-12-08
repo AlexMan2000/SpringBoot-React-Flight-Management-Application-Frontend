@@ -30,9 +30,7 @@ export default function TopDestinations(){
         }
       }).then(function(response){
           message.success("数据加载成功");
-          console.log(response.data);
           const dataMap = response.data.map((item)=>({type:item.type,value:item.value}))
-          console.log(dataMap);
           setData(dataMap);
 
       }).catch(function(){

@@ -39,8 +39,6 @@ export default function EditAirport({loginInfo}) {
         }
       }).then(function(response){
         if(response.data){
-          console.log(response.data);
-          // console.log(JSON.parse(response.data));
           setTableData(response.data);
         }
       })
@@ -51,7 +49,6 @@ export default function EditAirport({loginInfo}) {
     },["airport"])
 
     const onFinish =(values)=>{
-      console.log(values);
       axios({
         url:"http://localhost:8080/airlineStaff/addNewAirplane",
         method:"post",
@@ -83,7 +80,7 @@ export default function EditAirport({loginInfo}) {
     }
 
     const onFinishFailed = ()=>{
-        console.log("验证失败");
+      message.error("Evaluation Failed!");
     }
 
     const onReset = ()=>{

@@ -7,7 +7,7 @@ import countDown from "../login/LoginOut";
 
 const {SubMenu} = Menu;
 
-export default function AgentSidebar({loginInfo,updateSelection,defaultData,setActionType,setFlightResult}) {
+export default function AgentSidebar({loginInfo,updateSelection,setDeptDate,defaultData,setActionType,setFlightResult}) {
     const tagList = {
         "1": "Search flights",
         "2": "Create order",
@@ -34,7 +34,8 @@ export default function AgentSidebar({loginInfo,updateSelection,defaultData,setA
         }
         updateSelection(tagList[item.key]);
             setFlightResult(null);
-        setActionType(actionTypeMapping[item.key]);
+            setDeptDate(undefined);
+            setActionType(actionTypeMapping[item.key]);
 
     }
 

@@ -7,7 +7,6 @@ import axios from "axios";
 export default function EditAirport({loginInfo}) {
 
     const onFinish =(values)=>{
-      console.log(values);
       axios({
         url:"http://localhost:8080/airlineStaff/addNewAirport",
         method:"post",
@@ -34,8 +33,7 @@ export default function EditAirport({loginInfo}) {
     }
 
     const onFinishFailed = ()=>{
-      console.log("xixi");
-    }
+      message.error("Evaluation Failed!");    }
 
     const onReset = ()=>{
       form.resetFields();

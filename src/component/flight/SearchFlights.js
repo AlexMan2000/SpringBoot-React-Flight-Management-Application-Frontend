@@ -1,4 +1,4 @@
-import {Input, Space, DatePicker, Select, Card, Button, Divider, Tag, Table,Modal} from 'antd';
+import {Input, Space, DatePicker, Select, Card, Button, Divider, Tag, Table,Modal,message} from 'antd';
 import React, {useState,useEffect} from "react";
 import {SwapOutlined} from "@ant-design/icons";
 import {statusColor} from "../../lib/statusTag";
@@ -258,7 +258,6 @@ export function FlightsResultTable(props)
         status:[item.status]
         })
     })}else if(actionType==="view"){
-        console.log(data);
          dataMap = data.map(item=>{
             return({
                 key:item.ticketId,
@@ -294,17 +293,14 @@ export function FlightsResultTable(props)
     )
 }
 
-export default function SearchFlights({loginInfo,userType,actionTab,setNavigateBar,flightsResult,setFlightResult,actionType}) {
+export default function SearchFlights({loginInfo,userType,deptDate,setDeptDate,actionTab,setNavigateBar,flightsResult,setFlightResult,actionType}) {
 
     const {RangePicker} = DatePicker;
 
     const [deptAirport, setDeptAirport] = useState(undefined);
     const [arriAirport, setArriAirport] = useState(undefined);
-    const [deptDate, setDeptDate] = useState(undefined); //today
-    const [deptDate2,setDeptDate2] = useState("");
+    // const [deptDate, setDeptDate] = useState(undefined); //today
     const [searchResult, setSearchResult] = useState([]);
-    // const [flightsResult, setFlightResult] = useState(null);
-    const [flightID, setFlightID] = useState(undefined);
     // 设置点击购买按钮后的数据
     const [rowRecord,setRowRecord] = useState(undefined);
 
@@ -314,7 +310,9 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
 
     const navigate = useNavigate();
 
+
     const searchAirport=()=>{
+       
         axios({
             url:"http://localhost:8080/index/searchAirports",
             type:"GET",
@@ -339,7 +337,6 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
 
     //callback就是传入的回调函数，value就是一个参数为value的，调用了callback的函数
     const handleChange = (callBack) => (value) => {
-        console.log(value);
         callBack(value);
     }
 
@@ -351,7 +348,7 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
 
     const handleSearchFlights = () => {
         // search flights
-        // console.log(deptDate);
+
         axios({
             url:"http://localhost:8080/index/searchFlights",
             method:"POST",
@@ -373,13 +370,12 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
             }
         }).catch(function(response){
             setFlightResult(null);
-            console.log("No Results!");
+            message.error("Back end server not started!");
         })
 
     }
 
     const handleSearchPurchase = () => {
-        console.log("xixi");
         axios({
             url:userType==="customer"?"http://localhost:8080/customer/getAllAvailableFlights":"http://localhost:8080/bookingAgent/getAllAvailableFlights",
             method:"POST",
@@ -390,10 +386,9 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
             }
         }).then(function(response){
             if(response.data){
-                console.log(response.data);
                 setFlightResult(response.data);
             }else{
-                console.log("No Results");
+                message.error("Back end server not started!");
             }
         })
 
@@ -407,16 +402,13 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
     // 处理和ViewFlights相关的请求
     const handleViewFlights = ()=>{
         let sendObject = null;
-        console.log("xixi");
-        if(deptDate===""&&deptDate2===""){
+        if(deptDate===""){
             sendObject = qs.stringify({
                 sourceAirport:deptAirport,
                 destAirport:arriAirport,
                 email:loginInfo.current?loginInfo.current.email:"abababababa@gmail.com",
             })
         }else{
-            console.log("view flights");
-            console.log(deptDate);
             sendObject= qs.stringify({
                 sourceAirport:deptAirport,
                 destAirport:arriAirport,
@@ -434,12 +426,11 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
             data:sendObject
         }).then(function(response){
             if(response.data){
-                console.log(response.data);
                 setFlightResult(response.data);
             }else{
             }
         }).catch(function(response){
-            console.log("出错了");
+            message.error("Back end server not started!")
         })
     }
 
@@ -467,6 +458,20 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
         }
     }
 
+
+    const defineRangeFilterTitle = ()=>{
+        if(actionType==="view"){
+            return (userType==="customer"?"Departure Time:":"Purchase Date:")
+        }else{
+            return "Departure Time:"
+        }
+
+
+
+
+    }
+
+
     return (
         <Card title={defineCardTitle()}>
             <Input.Group>
@@ -474,7 +479,7 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
                 <Select
                     showSearch
                     addonBefore="From"
-                    style={{width: 300, padding: 10}}
+                    style={{width: 230, padding: 10}}
                     placeholder={"Departure Airport"}
                     value={deptAirport}
                     defaultActiveFirstOption={false}
@@ -492,7 +497,7 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
                 <Select
                     showSearch
                     addonBefore="To"
-                    style={{width: 300, padding: 10}}
+                    style={{width: 230, padding: 10}}
                     placeholder={"Arrival Airport"}
                     value={arriAirport}
                     defaultActiveFirstOption={false}
@@ -505,9 +510,10 @@ export default function SearchFlights({loginInfo,userType,actionTab,setNavigateB
                 >
                     {options}
                 </Select>
-                {actionType==="view"?<RangePicker onChange={setDeptDate} format={"YYYY-MM-DD HH:mm:ss"} showTime={{ defaultValue: moment('YYYY-MM-DD HH:mm:ss') }} style={{width:200}} placeholder={["Begin With","End With"]}></RangePicker>:
-                <DatePicker format={"YYYY-MM-DD HH:mm:ss"} onChange={handleChange(setDeptDate)} showTime={{ defaultValue: moment('YYYY-MM-DD HH:mm:ss') }}
-   style={{width:200}} placeholder={"Depate After"} />}
+                <b style={{paddingLeft: 10,paddingRight:10}}>{defineRangeFilterTitle()}</b>
+                {actionType==="view"?<RangePicker onChange={setDeptDate} value={deptDate} format={"YYYY-MM-DD HH:mm:ss"} showTime={{ defaultValue: moment('YYYY-MM-DD HH:mm:ss') }} style={{width:300}} placeholder={["Begin With","End With"]}></RangePicker>:
+                <DatePicker format={"YYYY-MM-DD HH:mm:ss"} value={deptDate} onChange={handleChange(setDeptDate)} showTime={{ defaultValue: moment('YYYY-MM-DD HH:mm:ss') }}
+   style={{width:300}} placeholder={"Depate After"} />}
                 
                 <span style={{padding: 10}}> </span>
                 <Button type="primary" onClick={actionType==="view"?handleViewFlights:actionType==="purchase"?handleSearchPurchase:handleSearchFlights}>Search</Button>

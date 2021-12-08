@@ -17,9 +17,6 @@ export default function GrantPermission({loginInfo}){
 
     const [form] = Form.useForm();
 
-    console.log(checkedList);
-
-
     const onFinish=(values)=>{
       form.setFields([
         {
@@ -33,8 +30,6 @@ export default function GrantPermission({loginInfo}){
             errors:[]
         }
       ]);
-        //提交请求
-        console.log("papa");
         axios(
           {url:"http://localhost:8080/airlineStaff/grantPermission",
            method:"POST",
@@ -45,9 +40,7 @@ export default function GrantPermission({loginInfo}){
           }
         }).then(function(response){
           if(response.data){
-            console.log(response.data);
             if(response.data.success===true){
-              console.log("haha");
                 message.success("Success");
             }else{
               const errorMapping = response.data;
@@ -71,11 +64,6 @@ export default function GrantPermission({loginInfo}){
           }
         })
     }
-
-    const onFinishFailed = ()=>{
-        console.log("");
-    }
-
 
     const handleChange = (list)=>{
       setCheckedList(list);

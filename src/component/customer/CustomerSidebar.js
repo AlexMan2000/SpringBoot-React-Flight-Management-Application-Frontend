@@ -8,7 +8,7 @@ import countDown from "../login/LoginOut";
 
 const {SubMenu} = Menu;
 
-export default function CustomerSidebar({loginInfo,updateSelection,defaultData,setActionType,setFlightResult}) {
+export default function CustomerSidebar({loginInfo,updateSelection,defaultData,setActionType, setDeptDate,setFlightResult}) {
     const tagList = {
         "1": "Search flights",
         "2": "Purchase tickets",
@@ -36,12 +36,14 @@ export default function CustomerSidebar({loginInfo,updateSelection,defaultData,s
             updateSelection(tagList[item.key]);
 
             setFlightResult(defaultData.current);
-        setActionType(actionTypeMapping[item.key]);}
+        setActionType(actionTypeMapping[item.key]);
+        setDeptDate(undefined);}
         else{
         updateSelection(tagList[item.key]);
 
             setFlightResult(null);
-        setActionType(actionTypeMapping[item.key]);}
+        setActionType(actionTypeMapping[item.key]);
+        setDeptDate(undefined);}
     }
 
     useEffect(() => {

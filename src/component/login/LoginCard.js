@@ -35,7 +35,6 @@ export default function LoginCard(props) {
             if(response_msg.status===true){
                 //登录成功,后台session中有用户信息,用于免登录
                 //前端保存用户的权限和基本信息
-                console.log(response_msg);
                 // 从cookie中获取用户信息
                 if(activeTab==="customer"){
                     const name = response_msg.customer.name;
@@ -55,8 +54,6 @@ export default function LoginCard(props) {
                 navigate("/"+activeTab,{replace:true});
                 
             }else{
-                //诊断失败原因
-                // console.log(response.data);
                 if(response_msg.statusCode===1){
                     form.setFields([
                         {
@@ -91,7 +88,6 @@ export default function LoginCard(props) {
     //说的是字段的值验证失败
     const onFinishFailed=()=>{
         alert("字段有误");
-        console.log("haha");
     }
 
 

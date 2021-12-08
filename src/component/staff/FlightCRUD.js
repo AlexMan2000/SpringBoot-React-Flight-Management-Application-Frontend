@@ -32,12 +32,6 @@ export default function FlightCRUD({loginInfo}){
     const actionRef = useRef();
     //全局变量，用于控制是否加载默认数据
     const defaultRef = useRef(true);
-
-    console.log(loginInfo);//默认
-
-    // const defaultLoginInfo = {
-    //   permission:["Admin","Operator"]
-    // }
     
     //异步方法提交数据, 注意这里返回一个异步函数
     const fetchFlightData = async (query)=>{
@@ -49,35 +43,31 @@ export default function FlightCRUD({loginInfo}){
           }
         }).then(function(response){
           if(response.data){
-            console.log(response.data);
-            // const parsedData = JSON.parse(response.data);
               defaultRef.current = false;
               return {"data":{...response.data},"success":true};
           }else{
              return {"data":{},"success":false};
           }
         }).catch(function(){
-          console.log("返回默认数据")
+          message.error("Back end server not started! Render Default Date!");
           return {"data":dataSource,"success":true};
         })  
        
     }
 
     const fetchFilteredFlightData = async (query)=>{
-      console.log(query);
       return axios({
         url:"http://localhost:8080/airlineStaff/findAllFilteredFlights",
         method:"POST",
         data:query
       }).then(function(response){
         if(response.data){
-            console.log(response.data);
             return {"data":{...response.data},"success":true};
         }else{
            return {"data":{},"success":false};
         }
       }).catch(function(){
-        console.log("返回默认数据")
+        message.error("Back end server not started!Render Default Data!");
         return {"data":dataSource,"success":true};
       })  
      
@@ -143,7 +133,6 @@ export default function FlightCRUD({loginInfo}){
     }
 
     const handleUpdate = (flight_info)=>{
-        console.log(flight_info);
         axios({
           url:"http://localhost:8080/airlineStaff/updateStatus",
           method:"POST",
@@ -169,12 +158,13 @@ export default function FlightCRUD({loginInfo}){
 
     //用于提交数据之后
     const handleCreate = (values)=>{
+      console.log(values);
         axios({
           url:"http://localhost:8080/airlineStaff/addNewFlight",
           method:"post",
           data:{...values,
-            departureTime:new Date(moment(values.departureTime)),
-            arrivalTime:new Date(moment(values.arrivalTime))}
+            departureTime:moment(values.departureTime).format("yyyy-MM-DD HH:mm:ss"),
+            arrivalTime:moment(values.arrivalTime).format("yyyy-MM-DD HH:mm:ss")}
         }).then(function(response){
           if(response.data==="success"){
             message.success({
@@ -200,7 +190,6 @@ export default function FlightCRUD({loginInfo}){
     }
 
     const handleDetails =()=>{
-        console.log("show info");
     }
 
     const confirm = (e,record)=>{
@@ -208,7 +197,6 @@ export default function FlightCRUD({loginInfo}){
     }
 
     const cancel = (e)=>{
-        console.log(e);
         message.error("Click on No");
 
     }
@@ -343,7 +331,6 @@ export default function FlightCRUD({loginInfo}){
     const getData = async (params,sort,filter) => {
         // 组装查询参数，比如这里用 pageIndex 代替了 current
         if(defaultRef.current==true){
-              console.log("调用getData");
             const query = {
                 ...params,
                 pageIndex: params.current
@@ -351,7 +338,6 @@ export default function FlightCRUD({loginInfo}){
             delete query.current;
 
             // 发起请求
-            console.log("发起请求")
             const {data,success} = await fetchFlightData(query); //这里需要返回一个异步函数
             
             // 格式化返回数据
@@ -361,8 +347,6 @@ export default function FlightCRUD({loginInfo}){
                 total: data.total,
             };
         }else{
-          console.log(defaultRef);
-            console.log("调用getFilteredData");
             const query = {
                 ...params,
                 pageIndex: params.current
@@ -370,8 +354,6 @@ export default function FlightCRUD({loginInfo}){
             delete query.current;
     
             // 发起请求
-            console.log("发起请求");
-            console.log(params);
             const {data,success} = await fetchFilteredFlightData(query); //这里需要返回一个异步函数
             
             // 格式化返回数据

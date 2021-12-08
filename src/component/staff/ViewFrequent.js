@@ -256,7 +256,6 @@ export default function ViewFrequent({loginInfo}){
                 if(response.data){
                     originData.current = response.data;
                     const dataMap = processData();
-                    console.log(dataMap);
                     message.destroy();
                     message.success("Data Loaded!");
                     setData(dataMap);
@@ -270,7 +269,6 @@ export default function ViewFrequent({loginInfo}){
      }
 
      const processTableData = (email)=>{
-         console.log("haha");
          if(originData.current===null){
              return tableSampleData;
          }

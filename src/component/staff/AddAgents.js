@@ -27,13 +27,14 @@ export default function AddAgents({loginInfo}) {
             }else{
                 console.log("请求无结果");
             }
+        }).catch(function(response){
+          message.error("Back end server not started!");
         })
     }
 
 
     const handleChange = (value)=>{
         setEmail(value);
-        console.log("changed");
     }
 
 

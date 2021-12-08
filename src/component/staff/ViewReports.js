@@ -31,8 +31,6 @@ export default function ViewReports({loginInfo,setNavigateBar}){
 
 
     const getData = (airlineName,startDate,endDate)=>{
-      console.log(startDate);
-      console.log(endDate);
       axios.get("http://localhost:8080/airlineStaff/viewReports",
       {
         params:{
@@ -42,7 +40,6 @@ export default function ViewReports({loginInfo,setNavigateBar}){
         }
       }).then(function(response){
           if(response.data["statusCode"]==503){
-            console.log("跳出");
             loginInfo.current = null;
                 message.destroy();
                 message.error("Session Expired!");
@@ -145,7 +142,9 @@ export default function ViewReports({loginInfo,setNavigateBar}){
 
       const renderRange = (value)=>{
           if(value!=null){
-          getData("",value[0],value[1]);}
+          getData("",value[0],value[1]);}else{
+            getData("",null,null);
+          }
 
       }
 
