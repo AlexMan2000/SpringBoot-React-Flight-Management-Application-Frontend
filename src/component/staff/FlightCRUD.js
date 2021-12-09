@@ -176,9 +176,17 @@ export default function FlightCRUD({loginInfo}){
             });
             handleCreateModalVisible(false);
             actionRef.current.reload();
-          }else{
+          }else if(response.data==="Error"){
             message.error({
-              content: 'You have already inserted this airplane information!',
+              content: 'You have already inserted this flight information!',
+              className: 'custom-class',
+              style: {
+                marginTop: '40vh',
+              },
+            });
+          }else if(response.data==="Occupied"){
+            message.error({
+              content: 'This airplane has already been used for another flight!',
               className: 'custom-class',
               style: {
                 marginTop: '40vh',
@@ -297,11 +305,12 @@ export default function FlightCRUD({loginInfo}){
             fixed:"right",
             render: (text, record) => (
                 <Space size="middle">
-                
+                <span style={{width:50}}></span>
                 <Button onClick={()=>{
                   handleDetailModalVisible(true);
                   setStepFormValues(record);
                 }}>Details</Button>
+                <span style={{width:50}}></span>
                  <Tooltip title={loginInfo.current?loginInfo.current.permissionDescription.includes("Operator")?undefined:"Insufficient Privileges!":undefined} color={"orange"}>
                 <Button disabled={loginInfo.current?loginInfo.current.permissionDescription.includes("Operator")?false:true:false} onClick={()=>{
                     handleUpdateModalVisible(true);
@@ -309,7 +318,7 @@ export default function FlightCRUD({loginInfo}){
                 }} type={'primary'} size={'small'} >
                   <EditOutlined style={{fontSize: '15px'}} />
                 </Button></Tooltip>
-                <Popconfirm
+                {/* <Popconfirm
                      title="Are you sure to delete this row?"
                     onConfirm={(e)=>{confirm(e,record);}}
                     onCancel={cancel}
@@ -320,7 +329,7 @@ export default function FlightCRUD({loginInfo}){
                 <Button disabled={loginInfo.current?loginInfo.current.permissionDescription.includes("Operator")?false:true:false} onClick={()=>{
                 }} type={'primary'} size={'small'} danger >
                   <DeleteOutlined style={{fontSize: '15px'}} />
-                </Button></Tooltip></Popconfirm>
+                </Button></Tooltip></Popconfirm> */}
               </Space>
         
             )

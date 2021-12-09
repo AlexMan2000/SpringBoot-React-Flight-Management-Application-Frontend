@@ -254,7 +254,7 @@ export default function UserPage({initializingTab}) {
         },
         {
             title:"Permission Level",
-            description:loginInfo.current?loginInfo.current.permissionDescription?loginInfo.current.permissionDescription.join(", "):"":""
+            description:loginInfo.current?loginInfo.current.permissionDescription?loginInfo.current.permissionDescription.join(", "):"None":"None"
         },
         {
             title:"Airline",

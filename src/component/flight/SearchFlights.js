@@ -27,7 +27,7 @@ export function FlightsResultTable(props)
 {
     const {data,userType,loginInfo,actionType,setRowRecord,setCustomerModalVis,setAgentModalVis} = props;
     const {RangePicker} = DatePicker;
-
+    console.log(data);
 
     const agentInterfaceColumns = [
         {
@@ -244,8 +244,13 @@ export function FlightsResultTable(props)
 
     let columns = userType==="customer"? customerInterfaceColumns:userType==="agent"?agentInterfaceColumns:globalInterfaceColumns;
     let dataMap = data;
+
+    if(actionType ==="purchase"){
+        dataMap = dataMap.filter(item=>item.full===true);
+    }
     if(actionType!=="view"){
-     dataMap = data.map(item=>{
+
+     dataMap = dataMap.map(item=>{
         return({key:[item.airlineName,item.flightNum],
         flight_id:item.flightNum,
         airline:item.airlineName,
@@ -258,7 +263,7 @@ export function FlightsResultTable(props)
         status:[item.status]
         })
     })}else if(actionType==="view"){
-         dataMap = data.map(item=>{
+         dataMap = dataMap.map(item=>{
             return({
                 key:item.ticketId,
                 ticket_id:item.ticketId,
@@ -286,6 +291,14 @@ export function FlightsResultTable(props)
 
     if(actionType==="search"){
         columns = columns.filter((item)=>item.title!="User ID");
+    }
+
+    if(actionType==="purchase"){
+        
+        dataMap = dataMap.filter(item=>
+            item.isfull!==true
+        );
+        console.log(dataMap)
     }
 
     return (
@@ -385,6 +398,7 @@ export default function SearchFlights({loginInfo,userType,deptDate,setDeptDate,a
                 departureTime:deptDate?moment(deptDate).format("YYYY-MM-DD HH:mm:ss"):undefined
             }
         }).then(function(response){
+            console.log(response.data);
             if(response.data){
                 setFlightResult(response.data);
             }else{

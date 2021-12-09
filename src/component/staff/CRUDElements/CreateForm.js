@@ -97,16 +97,6 @@ export default function CreateForm(props){
               name="departureTime"
               label="Departure Time"
               rules={[{ required: true, message: 'Please input Departure Time' },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  console.log("xixi");
-                  if (moment(value)<moment(getFieldValue("arrivalTime"))) {
-                    return Promise.resolve();
-                  }
-    
-                  return Promise.reject(new Error('You cannot set the departure time to be later than arrival time!'));
-                },}),
-
               ]}
               >
               <DatePicker 

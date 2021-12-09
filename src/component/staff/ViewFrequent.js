@@ -1,12 +1,13 @@
 import {Card, Modal,Form, Input,Tooltip, Button,Table,DatePicker,InputNumber,Space,Spin,message,Tag} from 'antd';
 import {Bar} from "@ant-design/charts";
 import React, {useState,useEffect,useRef} from "react";
-import {LockOutlined, UserOutlined,QuestionCircleOutlined} from "@ant-design/icons";
+import {LockOutlined, UserOutlined,QuestionCircleOutlined, ConsoleSqlOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import moment from "moment";
 import { SettingOutlined } from '@ant-design/icons';
 import {statusColor} from "../../lib/statusTag";
+import qs from "qs";
 
 // 设置最大等待时间
 axios.defaults.timeout = 1000;
@@ -352,12 +353,45 @@ export default function ViewFrequent({loginInfo}){
 
     // 编写图例点击事件
     const handleClick =(event)=>{
-        const tableDataMap = processTableData(event.data.data.customer);
-        setTableData(tableDataMap);
-        setModalEmail(event.data.data.customer);
-        setModalVisibility(true);
+        console.log(event);
+        axios({
+            url:"http://localhost:8080/airlineStaff/findCustomersFlightAirline",
+            method:"POST",
+            data:qs.stringify({
+                email:event.data.data.customer,
+                airlineName:loginInfo.current?loginInfo.current.airlineName:null
+            })
+        }).then(function(response){
+            if(response.data){
+                const takenFlights = response.data;
+                const tableDataMap = takenFlights.map((item)=>{
+                    return ({
+                        key:[item.flightNum,item.airlineName],
+                        flight_id:item.flightNum,
+                        airline:item.airlineName,
+                        dept_time:moment(item.departureTime).format("yyyy-MM-DD HH:mm:ss"),
+                        arri_time:moment(item.arrivalTime).format("yyyy-MM-DD HH:mm:ss"),
+                        dept:item.sourceAirportName,
+                        arri:item.destAirportName,
+                        price:item.price,
+                        status:[item.status]
+                    })
+                });
+               setTableData(tableDataMap);
+               setModalEmail(event.data.data.customer);
+               setModalVisibility(true);
+            }else{
+                setTableData([]);
+                setModalEmail(event.data.data.customer);
+               setModalVisibility(true);
+            }
+        // const tableDataMap = processTableData(event.data.data.customer);
+        
+        // setModalEmail(event.data.data.customer);
+        // setModalVisibility(true);
 
-    }
+        
+    })}
 
     const handleCancel = () => {
         // 推出Modal
